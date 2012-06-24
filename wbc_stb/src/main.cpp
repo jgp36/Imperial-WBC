@@ -1,17 +1,9 @@
-
-
-
-
-
-#include "udp_osi.h"
-#include "ndtypes.h"
+#include <wbc_stb/udp_osi.h>
+#include <wbc_stb/ndtypes.h>
 #include <iostream>
 #include <stdio.h>
-extern "C" {
-	#include "sleep.h"
-}
 
-void main( int argc, unsigned char *argv[] )
+int main( int argc, unsigned char *argv[] )
 {
 	char* TARGET_IP = "127.0.0.1";						//TARGET IP FOR UDP
 	unsigned short TARGET_PORT = 57860;					//TARGET PORT FOR UDP
@@ -37,11 +29,10 @@ void main( int argc, unsigned char *argv[] )
 			fprintf (stdout,"Marker %d : %f %f %f \n",nCurMarker,p3dData[nCurMarker].x,p3dData[nCurMarker].y,p3dData[nCurMarker].z );
 
 		}
-
-		//sleep(1);
 	}
 	UDPConnection.~UdpOSI();
 
 	while(1) { }
-	exit( 0 );
+
+	return 0;
 }
