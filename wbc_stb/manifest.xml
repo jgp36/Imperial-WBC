@@ -1,0 +1,17 @@
+<package>
+  <description brief="wbc_stb">
+
+     wbc_stb
+
+  </description>
+  <depend package="roscpp"/>
+  <depend package="std_msgs"/>
+  <depend package="wbc_uta_opspace"/>
+  <author>Josh</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/wbc_stb</url>
+
+</package>
+
+

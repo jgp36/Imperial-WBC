@@ -6,6 +6,10 @@ set (CMAKE_BUILD_TYPE Debug)
 #set (ROS_BUILD_TYPE Release)
 set (ROS_BUILD_TYPE Debug)
 
+find_package(Eigen REQUIRED)
+include_directories(${EIGEN_INCLUDE_DIRS})
+add_definitions(${EIGEN_DEFINITIONS})
+
 add_definitions (-Wall -pipe)
 rosbuild_init ()
 
@@ -17,8 +21,8 @@ rosbuild_add_library (wbc_uta_opspace
   uta_opspace/HelloGoodbyeSkill.cpp
   uta_opspace/DelayHistogram.cpp
   uta_opspace/TaskOriPostureSkill.cpp
-  uta_opspace/WriteSkill.cpp
-  uta_opspace/LetterManager.cpp
+  #uta_opspace/WriteSkill.cpp
+  #uta_opspace/LetterManager.cpp
   uta_opspace/CartMultiPos.cpp
   uta_opspace/JointMultiPos.cpp
   uta_opspace/BaseMultiPos.cpp
