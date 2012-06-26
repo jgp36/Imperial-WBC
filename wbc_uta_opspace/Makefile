@@ -352,6 +352,21 @@ uta_opspace/ControllerNG.s:
 .PHONY : uta_opspace/ControllerNG.s
 
 # target to build an object file
+uta_opspace/ControllerVel.o:
+	$(MAKE) -f CMakeFiles/wbc_uta_opspace.dir/build.make CMakeFiles/wbc_uta_opspace.dir/uta_opspace/ControllerVel.o
+.PHONY : uta_opspace/ControllerVel.o
+
+# target to preprocess a source file
+uta_opspace/ControllerVel.i:
+	$(MAKE) -f CMakeFiles/wbc_uta_opspace.dir/build.make CMakeFiles/wbc_uta_opspace.dir/uta_opspace/ControllerVel.i
+.PHONY : uta_opspace/ControllerVel.i
+
+# target to generate assembly for a file
+uta_opspace/ControllerVel.s:
+	$(MAKE) -f CMakeFiles/wbc_uta_opspace.dir/build.make CMakeFiles/wbc_uta_opspace.dir/uta_opspace/ControllerVel.s
+.PHONY : uta_opspace/ControllerVel.s
+
+# target to build an object file
 uta_opspace/DelayHistogram.o:
 	$(MAKE) -f CMakeFiles/wbc_uta_opspace.dir/build.make CMakeFiles/wbc_uta_opspace.dir/uta_opspace/DelayHistogram.o
 .PHONY : uta_opspace/DelayHistogram.o
@@ -459,6 +474,9 @@ help:
 	@echo "... uta_opspace/ControllerNG.o"
 	@echo "... uta_opspace/ControllerNG.i"
 	@echo "... uta_opspace/ControllerNG.s"
+	@echo "... uta_opspace/ControllerVel.o"
+	@echo "... uta_opspace/ControllerVel.i"
+	@echo "... uta_opspace/ControllerVel.s"
 	@echo "... uta_opspace/DelayHistogram.o"
 	@echo "... uta_opspace/DelayHistogram.i"
 	@echo "... uta_opspace/DelayHistogram.s"

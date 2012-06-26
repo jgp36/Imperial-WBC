@@ -6,8 +6,8 @@
 int main( int argc, unsigned char *argv[] )
 {
 	char* TARGET_IP = "127.0.0.1";						//TARGET IP FOR UDP
-	unsigned short TARGET_PORT = 57860;					//TARGET PORT FOR UDP
-	unsigned short LOCAL_PORT = 50000;
+	char* TARGET_PORT = "57860";					//TARGET PORT FOR UDP
+	char* LOCAL_PORT = "50000";
 	Position3d p3dData[50];
 	
 
@@ -16,7 +16,7 @@ int main( int argc, unsigned char *argv[] )
 	int count = 0;
 
 	while (1) {
-		int bytes = UDPConnection.recvPacket((char*)p3dData, sizeof(p3dData));			//int recvPacket( char* buffer, int buffer_len );	len = 96
+		int bytes = UDPConnection.recvPacket((char*)p3dData, sizeof(p3dData));
 		if (bytes>1) {
 			count++;
 			std::cout<<"Package recieved "<<count<<"\t number of bytes "<<bytes<<std::endl;

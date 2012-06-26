@@ -18,6 +18,7 @@ set (LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 rosbuild_add_library (wbc_uta_opspace
   uta_opspace/strutil.cpp
   uta_opspace/ControllerNG.cpp
+  uta_opspace/ControllerVel.cpp
   uta_opspace/HelloGoodbyeSkill.cpp
   uta_opspace/DelayHistogram.cpp
   uta_opspace/TaskOriPostureSkill.cpp

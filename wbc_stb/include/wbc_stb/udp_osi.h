@@ -7,6 +7,7 @@
  */
 
 #include <iostream>
+#include <sys/types.h>
 
 #pragma once
 
@@ -21,8 +22,8 @@ public:
     * @param target_port Port number to communicate with
     * @param blocking Should the port be blocking ( 1=blocking, 0=nonblocking )
     */
-   UdpOSI( unsigned short local_port, char* target_ip,
-      unsigned short target_port, int blocking );
+   UdpOSI( char* local_port, char* target_ip,
+      char* target_port, int blocking );
 
    /** Destructor which closes the socket etc. */
    ~UdpOSI() { closeSocket(); }
@@ -66,7 +67,7 @@ private:
     * @param local_port Port number to bind socket to.
     * @return Success of the operation (0=success else=fail)
     */
-   int bindSocket( unsigned short local_port );
+   int bindSocket( char* local_port );
 
    /**
     * Set the socket as non-blocking so that recv calls will return if no data
@@ -79,7 +80,7 @@ private:
     * Connect to socket to a target.
     * @return Success of the operation (0=success else=fail)
     */
-   int connectSocket( char* target_ip, unsigned short target_port );
+   int connectSocket( char* target_ip, char* target_port );
 
    /**
     * Close the socket preventing any more packets being sent or received.
@@ -90,7 +91,7 @@ private:
 
    // Member variables
    int   m_socket;
-   void* m_target_sockaddr;
+   struct addrinfo *m_target_sockaddr, *m_local_sockaddr;
 };
 
 

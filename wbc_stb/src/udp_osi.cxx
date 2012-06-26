@@ -4,6 +4,10 @@
  *
  * @author Stuart Bowyer
  * @date 20 March 2012
+
+ * modified by Josh Petersen
+ * for linux use in WBC
+
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,8 +23,7 @@
 #include <wbc_stb/udp_osi.h>
 
 
-
-UdpOSI::UdpOSI( unsigned short local_port, char* target_ip, unsigned short target_port, int blocking )
+UdpOSI::UdpOSI( char* local_port, char* target_ip, char* target_port, int blocking )
 {
    m_socket = 0;
 
@@ -93,14 +96,12 @@ int UdpOSI::recvPacket( char* buffer, int buffer_len )
 
 int UdpOSI::createSocket()
 {
-   
-   m_socket = (int)INVALID_SOCKET;"ERROR: Packet send failed (" << WSAGetLastError() << ")."
-   m_socket = (int)socket( AF_INET, SOCK_DGRAM, IPPROTO_UDP );
+   m_socket = socket( AF_INET, SOCK_DGRAM, IPPROTO_UDP );
 
-   if ( m_socket == (int)INVALID_SOCKET )
+   if ( m_socket == -1 )
    {
       m_socket = 0;
-      std::cout << "ERROR: Socket creation failed (" << WSAGetLastError() << ")." << std::endl;
+      std::cout << "ERROR: Socket creation failed" << std::endl;
       return 1;
    }
 
@@ -108,21 +109,23 @@ int UdpOSI::createSocket()
 }
 
 
-int UdpOSI::bindSocket( unsigned short local_port )
+int UdpOSI::bindSocket( char* local_port )
 {
    // Create local address structure
-   SOCKADDR_IN local_sockaddr;
-   local_sockaddr.sin_family = AF_INET;
-   local_sockaddr.sin_port = htons( local_port );
-   local_sockaddr.sin_addr.s_addr = INADDR_ANY;
+  struct addrinfo hints;
+  memset(&hints, 0, sizeof hints);
+  hints.ai_family = AF_UNSPEC;
+  hints.ai_socktype = SOCK_DGRAM;
+  hints.ai_flags = AI_PASSIVE;
+
+  getaddrinfo(NULL, local_port, &hints, &m_local_sockaddr);
 
    // Bind
-   int bind_status = bind(
-      (SOCKET)m_socket, (SOCKADDR*)&local_sockaddr, sizeof(local_sockaddr) );
+  int bind_status = bind( m_socket, m_local_sockaddr->ai_addr, m_local_sockaddr->ai_addrlen );
 
    if ( bind_status != 0 )
    {
-      std::cout << "ERROR: Socket bind failed (" << WSAGetLastError() << ")." << std::endl;
+      std::cout << "ERROR: Socket bind failed"  << std::endl;
       return 1;
    }
    return 0;
@@ -131,33 +134,35 @@ int UdpOSI::bindSocket( unsigned short local_port )
 
 int UdpOSI::nonBlocking()
 {
+  /*
    u_long nb_on = 1;
-   int nb_status = ioctlsocket( (SOCKET)m_socket, FIONBIO, &nb_on );
+   int nb_status = ioctlsocket( m_socket, FIONBIO, &nb_on );
 
    if ( nb_status != 0 )
    {
-      std::cout << "ERROR: Socket non-blocking set failed (" << WSAGetLastError() << ")." << std::endl;
+      std::cout << "ERROR: Socket non-blocking set failed" << std::endl;
       return 1;
-   }
+      }*/
    return 0;
 }
 
 
-int UdpOSI::connectSocket( char* target_ip, unsigned short target_port )
+int UdpOSI::connectSocket( char* target_ip, char* target_port )
 {
-   // Create target address structure
-   SOCKADDR_IN target_sockaddr;
-   target_sockaddr.sin_family = AF_INET;
-   target_sockaddr.sin_port = htons( target_port );
-   target_sockaddr.sin_addr.s_addr = inet_addr( target_ip );
+   // Create target address structure  
+  struct addrinfo hints;
+  memset(&hints, 0, sizeof hints);
+  hints.ai_family = AF_UNSPEC;
+  hints.ai_socktype = SOCK_DGRAM;
+
+  getaddrinfo(target_ip, target_port, &hints, &m_target_sockaddr);
 
    // Connect
-   int connect_status = connect(
-      (SOCKET)m_socket, (SOCKADDR*)&target_sockaddr, sizeof(target_sockaddr) );
+  int connect_status = connect( m_socket, m_target_sockaddr->ai_addr, m_target_sockaddr->ai_addrlen);
 
    if ( connect_status != 0 )
    {
-      std::cout << "ERROR: Socket connect failed (" << WSAGetLastError() << ")." << std::endl;
+      std::cout << "ERROR: Socket connect failed" << std::endl;
       return 1;
    }
    return 0;
@@ -168,14 +173,13 @@ int UdpOSI::closeSocket()
 {
    if ( m_socket == 0 ) return 0;
 
-   int close_status = closesocket( (SOCKET)m_socket );
+   int close_status = close(m_socket);
 
    if ( close_status != 0 )
    {
-      std::cout << "ERROR: Socket close failed (" << WSAGetLastError() << ")." << std::endl;
+      std::cout << "ERROR: Socket close failed" << std::endl;
       return 1;
    }
-   WSACleanup();
    m_socket = 0;
    return 0;
 }

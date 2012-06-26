@@ -124,6 +124,7 @@ namespace jspace {
     ang_vel_ = rhs.ang_vel_;
     orientation_mtx_ = rhs.orientation_mtx_;
     remote_command_ = rhs.remote_command_;
+    camData_ = rhs.camData_;
     return *this;
   }
   

@@ -86,6 +86,7 @@ namespace jspace {
     Vector ang_vel_;
     Matrix orientation_mtx_;
     Vector remote_command_;
+    Matrix camData_;
 
   };
   
