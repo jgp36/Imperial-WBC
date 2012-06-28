@@ -222,11 +222,11 @@ namespace uta_opspace {
 	jstar = jac * UNcBar * nstar;
       }
 
-      Matrix jstarpinv;
-      jspace::pseudoInverse(jstar, 0.0001, jstarpinv, 0);
-	
-      
+      //Least norm inverse
       Matrix jjt(jstar * jstar.transpose());
+      Matrix jstarpinv(jstar.transpose()*jjt.inverse());
+      jinv_ = jstarpinv;	
+      
       Vector sv_jstar;
       
       if (1 == jjt.rows()) {	// work around limitations of Eigen2 SVD.

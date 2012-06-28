@@ -412,6 +412,21 @@ uta_opspace/JointMultiPos.s:
 .PHONY : uta_opspace/JointMultiPos.s
 
 # target to build an object file
+uta_opspace/RigidTf.o:
+	$(MAKE) -f CMakeFiles/wbc_uta_opspace.dir/build.make CMakeFiles/wbc_uta_opspace.dir/uta_opspace/RigidTf.o
+.PHONY : uta_opspace/RigidTf.o
+
+# target to preprocess a source file
+uta_opspace/RigidTf.i:
+	$(MAKE) -f CMakeFiles/wbc_uta_opspace.dir/build.make CMakeFiles/wbc_uta_opspace.dir/uta_opspace/RigidTf.i
+.PHONY : uta_opspace/RigidTf.i
+
+# target to generate assembly for a file
+uta_opspace/RigidTf.s:
+	$(MAKE) -f CMakeFiles/wbc_uta_opspace.dir/build.make CMakeFiles/wbc_uta_opspace.dir/uta_opspace/RigidTf.s
+.PHONY : uta_opspace/RigidTf.s
+
+# target to build an object file
 uta_opspace/TaskOriPostureSkill.o:
 	$(MAKE) -f CMakeFiles/wbc_uta_opspace.dir/build.make CMakeFiles/wbc_uta_opspace.dir/uta_opspace/TaskOriPostureSkill.o
 .PHONY : uta_opspace/TaskOriPostureSkill.o
@@ -486,6 +501,9 @@ help:
 	@echo "... uta_opspace/JointMultiPos.o"
 	@echo "... uta_opspace/JointMultiPos.i"
 	@echo "... uta_opspace/JointMultiPos.s"
+	@echo "... uta_opspace/RigidTf.o"
+	@echo "... uta_opspace/RigidTf.i"
+	@echo "... uta_opspace/RigidTf.s"
 	@echo "... uta_opspace/TaskOriPostureSkill.o"
 	@echo "... uta_opspace/TaskOriPostureSkill.i"
 	@echo "... uta_opspace/TaskOriPostureSkill.s"

@@ -62,6 +62,7 @@ namespace opspace {
     Factory::addTaskType<opspace::TestBaseControlTask>("opspace::TestBaseControlTask");
     Factory::addTaskType<opspace::TestRemoteVelControlTask>("opspace::TestRemoteVelControlTask"); 
     Factory::addTaskType<opspace::TestRelativeCOMTask>("opspace::TestRelativeCOMTask");
+    Factory::addTaskType<opspace::TestImplicitSurfaceTask>("opspace::TestImplicitSurfaceTask");
 
     Factory::addSkillType<opspace::GenericSkill>("opspace::GenericSkill");
     Factory::addSkillType<opspace::TaskPostureSkill>("opspace::TaskPostureSkill");

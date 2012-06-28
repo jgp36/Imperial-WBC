@@ -2713,4 +2713,119 @@ namespace opspace {
     return end_effector_node_;
   }
 
+  TestImplicitSurfaceTask::
+  TestImplicitSurfaceTask(std::string const & name)
+    : Task(name),
+      end_effector_id_(-1),
+      control_point_(Vector::Zero(3)),
+      end_effector_node_(0),
+      kp_(Vector::Zero(2)),
+      kd_(Vector::Zero(2))
+  {
+    declareParameter("end_effector",  &end_effector_id_ );
+    declareParameter("control_point", &control_point_);
+    declareParameter("kp", &kp_);
+    declareParameter("kd", &kd_);
+    declareParameter("R", &R_);
+    declareParameter("T", &T_);
+  }
+
+  Status TestImplicitSurfaceTask::
+  init(Model const & model) {
+    if (0 > end_effector_id_) {
+      return Status(false, "you did not (correctly) set end_effector_id");
+    }
+    if (3 != control_point_.rows()) {
+      return Status(false, "control_point needs to be three dimensional");
+    }
+    if (1 != kp_.rows()) {
+      return Status(false, "kp needs to be two dimensional");
+    }
+    if (1 != kd_.rows()) {
+      return Status(false, "kd needs to be two dimensional");
+    }
+
+    if (0 == updateActual(model)) {
+      return Status(false, "updateActual() failed, did you specify a valid end_effector_id?");
+    }
+    Status ok;
+    return ok;
+  }
+
+
+  Status TestImplicitSurfaceTask::
+  update(Model const & model) {
+    end_effector_node_ = updateActual(model);
+    if ( ! end_effector_node_) {
+      return Status(false, "invalid end_effector");
+    }
+
+    Vector vel(jacobian_ * model.getFullState().velocity_);
+
+    command_ = kp_.cwise() * (-actual_) - kd_.cwise() * vel;
+
+    Status ok;
+    return ok;
+  }
+
+  void TestImplicitSurfaceTask::
+  dbg(std::ostream & os,std::string const & title,std::string const & prefix) const {
+    if ( ! title.empty()) {
+      os << title << "\n";
+    }
+    os << prefix << "Implicit Surface Task: `" << instance_name_ << "'\n";
+
+    pretty_print(actual_, os, prefix + "  actual", prefix + "    ");
+    pretty_print(jacobian_, os, prefix + "  jacobian", prefix + "    ");
+    pretty_print(command_, os, prefix + "  command", prefix + "    ");
+  }
+
+  taoDNode const * TestImplicitSurfaceTask::
+  updateActual(Model const & model) {
+    if ( ! end_effector_node_) {
+      end_effector_node_ = model.getNode(end_effector_id_);
+    }
+    if (end_effector_node_) {
+      jspace::Transform ee_transform;
+      model.computeGlobalFrame(end_effector_node_,
+			       control_point_[0],
+			       control_point_[1],
+			       control_point_[2],
+			       ee_transform);
+      
+      actual_ = Vector::Zero(1);
+
+      Vector eepos = ee_transform.translation();
+      double x = eepos(1);
+      double y = eepos(2);
+      double z = eepos(3);
+      double r, xc, yc, zc;
+      double f = T_;
+
+      Matrix gradf(Matrix::Zero(1,3));
+      for (size_t ii=0; ii < model.getState().camData_.rows();++ii) {
+	xc = model.getState().camData_(ii,1);
+	yc = model.getState().camData_(ii,2);
+	zc = model.getState().camData_(ii,3);
+
+	r = sqrt(pow(x-xc,2)+pow(y-yc,2)+pow(z-zc,2));
+	if (r < R_) {
+	  f -= pow(1-r/R_,6)*(35*pow(r/R_,2)+18*r/R_+3);
+	  gradf(1,1) = gradf(1,1) + ((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*(x-xc)/r;
+	  gradf(1,2) = gradf(1,2) + ((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*(y-yc)/r;
+	  gradf(1,3) = gradf(1,3) + ((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*(z-zc)/r;
+	}
+      }
+      actual_(1) = f;
+
+      Matrix Jfull;
+      if ( ! model.computeJacobian(end_effector_node_, actual_[0], actual_[1], actual_[2], Jfull)) {
+	return 0;
+      }
+      jacobian_ = gradf*Jfull.block(0,0,3,Jfull.cols());
+
+    }
+    return end_effector_node_;
+  }
+
 }
