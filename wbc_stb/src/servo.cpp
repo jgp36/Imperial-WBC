@@ -438,7 +438,6 @@ int main(int argc, char ** argv)
 	jspace::pretty_print(model->getState().velocity_, cout, "jvel", "  ");
 	jspace::pretty_print(model->getState().force_, cout, "jforce", "  ");
 	jspace::pretty_print(controller->getCommand(), cout, "gamma", "  ");
-        jspace::pretty_print(controller->getJinv(), cout, "jinv", "   ");
       }
     }
     if (t1 - dump_t0 > dump_dt) {

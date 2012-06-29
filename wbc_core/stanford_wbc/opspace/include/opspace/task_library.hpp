@@ -488,6 +488,32 @@ namespace opspace {
     Vector goalvel_;
   };
 
+  class TestPureSelectCartPosTask
+    : public Task
+  {
+  public:
+    explicit TestPureSelectCartPosTask(std::string const & name);
+
+    virtual Status init(Model const & model);
+    virtual Status update(Model const & model);
+
+    virtual void dbg(std::ostream & os,
+		     std::string const & title,
+		     std::string const & prefix) const;
+
+  protected:
+    virtual taoDNode const * updateActual(Model const & model);
+    int end_effector_id_;
+    Vector kp_;
+    Vector kd_;
+    Vector control_point_;
+    mutable taoDNode const * end_effector_node_;
+    Vector goalpos_;
+    Vector goalvel_;
+    Vector selection_;
+  };
+
+
   /**
      Joint space positioning task with no velocity saturation
    */
