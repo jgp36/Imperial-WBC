@@ -1,0 +1,22 @@
+- tasks:
+  - type: opspace::TestPositionOrientationTask
+    name: eepos
+    end_effector_id: 5
+    sigma_threshold: 0.005
+    kp: [ 10.0, 10.0, 10.0, 10.0, 10.0, 10.0 ]
+    kd: [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ]
+    
+- skills:
+  - type: uta_opspace::RigidTf
+    name: RigidTf
+    eepos: [ 0.30, -0.10, -0.05,
+	     0.30,  0.10, -0.05,
+	     0.30,  0.10,  0.05,
+            -0.30,  0.10,  0.05 ]
+    ori_x: [ 1,  0,  0 ]
+    ori_y: [ 0,  1,  0 ]
+    ori_z: [ 0,  0,  1 ]
+    threshold: 0.05
+    vel_threshold: 0.10
+    slots:
+      eepos: eepos

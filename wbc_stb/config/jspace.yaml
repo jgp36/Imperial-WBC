@@ -1,0 +1,12 @@
+- tasks:
+  - type: opspace::PureJPosTask
+    name: task2
+    kp: [  1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+    kd: [   0.0,  0.0,  0.0,  0.0,  0.0,  0.0]
+    goalpos: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
+- skills:
+  - type: opspace::GenericSkill
+    name: jspace
+    slots:
+      task: task

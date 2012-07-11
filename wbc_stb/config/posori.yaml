@@ -1,0 +1,17 @@
+- tasks:
+  - type: opspace::TestPositionOrientationTask
+    name: eepos
+    end_effector_id: 5
+    sigma_threshold: 0.005
+    kp: [ 10.0, 10.0, 10.0, 10.0, 10.0, 10.0 ]
+    kd: [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ]
+    goalpos: [ 0.30, -0.10, -0.05]
+    goal_x: [ 1,  0,  0 ]
+    goal_y: [ 0,  1,  0 ]
+    goal_z: [ 0,  0,  1 ]
+    
+- skills:
+  - type: opspace::GenericSkill
+    name: GenericSkill
+    slots:
+      task: eepos
