@@ -11,8 +11,8 @@ int main(int argc, char** argv) {
   sprintf(local_port, "%d", CLIENT_PORT);
   char robot_port [10];
   sprintf(robot_port, "%d", CS8C_PORT);
-  //UdpOSI robotUDP( local_port, const_cast<char*>(CS8C_IPADDR), robot_port, 0);
-  UdpOSI robotUDP( local_port, "127.0.0.1", robot_port, 0);
+  UdpOSI robotUDP( local_port, const_cast<char*>(CS8C_IPADDR), robot_port, 0);
+  //UdpOSI robotUDP( local_port, "127.0.0.1", robot_port, 0);
 
 
   //Initial message
@@ -48,6 +48,14 @@ int main(int argc, char** argv) {
   }
   while(1) {
 
+   //UDP robot out
+    robotCmd.pktNo = robotFb.pktMirror;
+    bytes = robotUDP.sendPacket((char*)&robotCmd, sizeof(robotCmd));
+    if (bytes != 0) {
+      fprintf(stderr, "Failed to send robot UDP");
+      return 0;
+    }
+
     //UDP robot in
     bytes = robotUDP.recvPacket((char*)&robotFb, sizeof(robotFb));
     if (bytes <1) {
@@ -65,13 +73,6 @@ int main(int argc, char** argv) {
     for (size_t ii(0); ii < JNT_POS_LEN; ++ii) {
       std::cout << "J" << ii << " position: " << robotFb.jntPos[ii] << "\n";    
       std::cout << "J" << ii << " velocity: " << robotFb.jntVel[ii] << "\n";
-    }
-
-    //UDP robot out
-    bytes = robotUDP.sendPacket((char*)&robotCmd, sizeof(robotCmd));
-    if (bytes != 0) {
-      fprintf(stderr, "Failed to send robot UDP");
-      return 0;
     }
 
   }

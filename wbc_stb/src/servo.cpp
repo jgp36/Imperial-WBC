@@ -289,8 +289,8 @@ int main(int argc, char ** argv)
   sprintf(local_port, "%d", CLIENT_PORT);
   char robot_port [10];
   sprintf(robot_port, "%d", CS8C_PORT);
-  //UdpOSI robotUDP( local_port, const_cast<char*>(CS8C_IPADDR), robot_port, 0);
-  UdpOSI robotUDP( local_port, "127.0.0.1", robot_port, 0);
+  UdpOSI robotUDP( local_port, const_cast<char*>(CS8C_IPADDR), robot_port, 0);
+  //UdpOSI robotUDP( local_port, "127.0.0.1", robot_port, 0);
 
 
   //Initial message
@@ -371,6 +371,7 @@ int main(int argc, char ** argv)
   while (ros::ok()) {
 
     //UDP robot out
+    robotCmd.pktNo = robotFb.pktMirror;
     for (size_t ii(0); ii < JNT_VEL_LEN; ++ii) {
       robotCmd.jntVel[ii] = command[ii]*UNIT2PKT;
     }
