@@ -1,7 +1,7 @@
 - tasks:
   - type: opspace::PureJPosTask
-    name: task2
-    kp: [  1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+    name: task
+    kp: [  0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
     kd: [   0.0,  0.0,  0.0,  0.0,  0.0,  0.0]
     goalpos: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 

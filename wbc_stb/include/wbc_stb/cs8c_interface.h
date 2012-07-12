@@ -88,7 +88,7 @@ static const int32_t JNT_FBK_ID =      68645641;
 
 // Network addressing
 // IP and port to which the the client should send commands
-static const char*            CS8C_IPADDR =     "172.31.0.1";
+static const char*            CS8C_IPADDR =     "155.198.64.28";
 static const unsigned short   CS8C_PORT =       57271;
 // IP and port to which the CS8C will send feedback
 static const char*            CLIENT_IPADDR =   "172.31.0.123";

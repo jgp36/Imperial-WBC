@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
   }
   if (robotFb.cs8cErrno != 0) {
     fprintf(stderr, "Error with feedback packet: %d",robotFb.cs8cErrno);
-    return 0;
+    //return 0;
   }
   if (robotFb.pktID != JNT_FBK_ID) {
     fprintf(stderr, "Error: wrong feedback packet. Switch to joint feedback");
@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
   while(1) {
 
    //UDP robot out
-    robotCmd.pktNo = robotFb.pktMirror;
+    robotCmd.pktMirror = robotFb.pktNo;
     bytes = robotUDP.sendPacket((char*)&robotCmd, sizeof(robotCmd));
     if (bytes != 0) {
       fprintf(stderr, "Failed to send robot UDP");
@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
     }
     if (robotFb.cs8cErrno != 0) {
       fprintf(stderr, "Error with feedback packet: %d",robotFb.cs8cErrno);
-      return 0;
+      //return 0;
     }
     if (robotFb.pktID != JNT_FBK_ID) {
       fprintf(stderr, "Error: wrong feedback packet. Switch to joint feedback");

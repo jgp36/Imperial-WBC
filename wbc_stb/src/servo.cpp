@@ -268,7 +268,7 @@ int main(int argc, char ** argv)
   ros::NodeHandle node("~");
 
   jspace::State state(6, 6, 6);
-  jspace::Vector command(6);
+  jspace::Vector command(Vector::Zero(6));
   //Need to setup the transform here
   //Should be changed to a parameter in TAO
   jspace::Matrix R(Matrix::Identity(3,3));
@@ -299,13 +299,14 @@ int main(int argc, char ** argv)
     robotCmd.jntVel[ii] = 0;
   }
   robotCmd.pktID = JNT_VEL_CMD_ID;
-  int bytes = robotUDP.sendPacket((char*)&robotCmd, sizeof(robotCmd));
+  int bytes;
+  /*int bytes = robotUDP.sendPacket((char*)&robotCmd, sizeof(robotCmd));
   if (bytes != 0) {
     fprintf(stderr, "Failed to send robot UDP");
     servo.cleanup();
     return 0;
   }
-  cout <<"Sent initial command packet\n";
+  cout <<"Sent initial command packet\n";*/
 
   //Wait for a response
   CS8CJntFbk robotFb;
@@ -315,8 +316,8 @@ int main(int argc, char ** argv)
   }
   if (robotFb.cs8cErrno != 0) {
     fprintf(stderr, "Error with feedback packet: %d",robotFb.cs8cErrno);
-    servo.cleanup();
-    return 0;
+    //servo.cleanup();
+    //return 0;
   }
   if (robotFb.pktID != JNT_FBK_ID) {
     fprintf(stderr, "Error: wrong feedback packet. Switch to joint feedback");
@@ -371,7 +372,7 @@ int main(int argc, char ** argv)
   while (ros::ok()) {
 
     //UDP robot out
-    robotCmd.pktNo = robotFb.pktMirror;
+    robotCmd.pktMirror = robotFb.pktNo;
     for (size_t ii(0); ii < JNT_VEL_LEN; ++ii) {
       robotCmd.jntVel[ii] = command[ii]*UNIT2PKT;
     }
@@ -391,8 +392,8 @@ int main(int argc, char ** argv)
     }
     if (robotFb.cs8cErrno != 0) {
       fprintf(stderr, "Error with feedback packet: %d",robotFb.cs8cErrno);
-      servo.cleanup();
-      return 0;
+      //servo.cleanup();
+      //return 0;
     }
     if (robotFb.pktID != JNT_FBK_ID) {
       fprintf(stderr, "Error: wrong feedback packet. Switch to joint feedback");
@@ -436,8 +437,8 @@ int main(int argc, char ** argv)
 	controller->dbg(cout, "--------------------------------------------------", "");
 	cout << "--------------------------------------------------\n";
 	jspace::pretty_print(model->getState().position_, cout, "jpos", "  ");
-	jspace::pretty_print(model->getState().velocity_, cout, "jvel", "  ");
-	jspace::pretty_print(model->getState().force_, cout, "jforce", "  ");
+	//jspace::pretty_print(model->getState().velocity_, cout, "jvel", "  ");
+	//jspace::pretty_print(model->getState().force_, cout, "jforce", "  ");
 	jspace::pretty_print(controller->getCommand(), cout, "gamma", "  ");
       }
     }
