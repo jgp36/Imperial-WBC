@@ -28,4 +28,6 @@ rosbuild_add_library (wbc_uta_opspace
   uta_opspace/JointMultiPos.cpp
   uta_opspace/BaseMultiPos.cpp
   uta_opspace/RigidTf.cpp
+  uta_opspace/SurfaceMotion.cpp
+  uta_opspace/SurfaceOriMotion.cpp
   )

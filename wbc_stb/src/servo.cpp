@@ -10,6 +10,8 @@
 #include <uta_opspace/ControllerVel.hpp>
 #include <wbc_core/opspace_param_callbacks.hpp>
 #include <uta_opspace/RigidTf.hpp>
+#include <uta_opspace/SurfaceMotion.hpp>
+#include <uta_opspace/SurfaceOriMotion.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <err.h>
 #include <signal.h>
@@ -17,6 +19,7 @@
 #include <wbc_stb/udp_osi.h>
 #include <wbc_stb/cs8c_interface.h>
 #include <wbc_stb/ndtypes.h>
+#include <wbc_stb/vis_interface.h>
 
 using namespace wbc_stb;
 using namespace opspace;
@@ -261,6 +264,8 @@ int main(int argc, char ** argv)
   // file, we need to inform the static type registry about custom
   // additions such as the HelloGoodbyeSkill.
   Factory::addSkillType<uta_opspace::RigidTf>("uta_opspace::RigidTf");
+  Factory::addSkillType<uta_opspace::SurfaceMotion>("uta_opspace::SurfaceMotion");
+  Factory::addSkillType<uta_opspace::SurfaceOriMotion>("uta_opspace::SurfaceOriMotion");
   
   
   ros::init(argc, argv, "wbc_stb_servo", ros::init_options::NoSigintHandler);
@@ -290,7 +295,6 @@ int main(int argc, char ** argv)
   char robot_port [10];
   sprintf(robot_port, "%d", CS8C_PORT);
   UdpOSI robotUDP( local_port, const_cast<char*>(CS8C_IPADDR), robot_port, 0);
-  //UdpOSI robotUDP( local_port, "127.0.0.1", robot_port, 0);
 
 
   //Initial message
@@ -300,13 +304,6 @@ int main(int argc, char ** argv)
   }
   robotCmd.pktID = JNT_VEL_CMD_ID;
   int bytes;
-  /*int bytes = robotUDP.sendPacket((char*)&robotCmd, sizeof(robotCmd));
-  if (bytes != 0) {
-    fprintf(stderr, "Failed to send robot UDP");
-    servo.cleanup();
-    return 0;
-  }
-  cout <<"Sent initial command packet\n";*/
 
   //Wait for a response
   CS8CJntFbk robotFb;
@@ -333,6 +330,7 @@ int main(int argc, char ** argv)
   //UDP camera- with option of no camera
   Position3d rawCamData[10];
   jspace::Matrix camData;
+  robotinfo visinfo;
 
   //EDIT ME to actual camera address
   char local_cam_port [10];
@@ -405,7 +403,7 @@ int main(int argc, char ** argv)
       state.velocity_[ii] = robotFb.jntVel[ii]*PKT2UNIT;
     }
 
-    //UDP camera in
+    //UDP camera in and out
     if (cam) {
       bytes = cameraUDP.recvPacket((char*)rawCamData, sizeof(rawCamData));
       if (bytes <1) {
@@ -420,6 +418,21 @@ int main(int argc, char ** argv)
       }
       Matrix temp(R * camData.transpose() + d*Matrix::Ones(1,bytes/sizeof(Position3d)));
       state.camData_ = temp.transpose();
+
+      //Camera out
+      for (size_t ii(0); ii<6 ; ++ii) {
+	visinfo.position[ii] = state.position_[ii];
+      }
+      visinfo.R = 0;
+      visinfo.T = 0;
+      Skill::task_table_t const * tasks(servo.skill->getTaskTable());
+      RealParameter* R_ = dynamic_cast<RealParameter*>((*tasks)[0]->lookupParameter("R"));
+      RealParameter* T_ = dynamic_cast<RealParameter*>((*tasks)[0]->lookupParameter("T"));
+      if (R_ && T_) {
+	visinfo.R = *(R_->getReal());
+	visinfo.T = *(T_->getReal());
+      }
+      bytes = cameraUDP.sendPacket((char*)&visinfo, sizeof(visinfo));
     }  
 
     status = servo.update(state, command);
@@ -437,8 +450,6 @@ int main(int argc, char ** argv)
 	controller->dbg(cout, "--------------------------------------------------", "");
 	cout << "--------------------------------------------------\n";
 	jspace::pretty_print(model->getState().position_, cout, "jpos", "  ");
-	//jspace::pretty_print(model->getState().velocity_, cout, "jvel", "  ");
-	//jspace::pretty_print(model->getState().force_, cout, "jforce", "  ");
 	jspace::pretty_print(controller->getCommand(), cout, "gamma", "  ");
       }
     }

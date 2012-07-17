@@ -427,6 +427,36 @@ uta_opspace/RigidTf.s:
 .PHONY : uta_opspace/RigidTf.s
 
 # target to build an object file
+uta_opspace/SurfaceMotion.o:
+	$(MAKE) -f CMakeFiles/wbc_uta_opspace.dir/build.make CMakeFiles/wbc_uta_opspace.dir/uta_opspace/SurfaceMotion.o
+.PHONY : uta_opspace/SurfaceMotion.o
+
+# target to preprocess a source file
+uta_opspace/SurfaceMotion.i:
+	$(MAKE) -f CMakeFiles/wbc_uta_opspace.dir/build.make CMakeFiles/wbc_uta_opspace.dir/uta_opspace/SurfaceMotion.i
+.PHONY : uta_opspace/SurfaceMotion.i
+
+# target to generate assembly for a file
+uta_opspace/SurfaceMotion.s:
+	$(MAKE) -f CMakeFiles/wbc_uta_opspace.dir/build.make CMakeFiles/wbc_uta_opspace.dir/uta_opspace/SurfaceMotion.s
+.PHONY : uta_opspace/SurfaceMotion.s
+
+# target to build an object file
+uta_opspace/SurfaceOriMotion.o:
+	$(MAKE) -f CMakeFiles/wbc_uta_opspace.dir/build.make CMakeFiles/wbc_uta_opspace.dir/uta_opspace/SurfaceOriMotion.o
+.PHONY : uta_opspace/SurfaceOriMotion.o
+
+# target to preprocess a source file
+uta_opspace/SurfaceOriMotion.i:
+	$(MAKE) -f CMakeFiles/wbc_uta_opspace.dir/build.make CMakeFiles/wbc_uta_opspace.dir/uta_opspace/SurfaceOriMotion.i
+.PHONY : uta_opspace/SurfaceOriMotion.i
+
+# target to generate assembly for a file
+uta_opspace/SurfaceOriMotion.s:
+	$(MAKE) -f CMakeFiles/wbc_uta_opspace.dir/build.make CMakeFiles/wbc_uta_opspace.dir/uta_opspace/SurfaceOriMotion.s
+.PHONY : uta_opspace/SurfaceOriMotion.s
+
+# target to build an object file
 uta_opspace/TaskOriPostureSkill.o:
 	$(MAKE) -f CMakeFiles/wbc_uta_opspace.dir/build.make CMakeFiles/wbc_uta_opspace.dir/uta_opspace/TaskOriPostureSkill.o
 .PHONY : uta_opspace/TaskOriPostureSkill.o
@@ -504,6 +534,12 @@ help:
 	@echo "... uta_opspace/RigidTf.o"
 	@echo "... uta_opspace/RigidTf.i"
 	@echo "... uta_opspace/RigidTf.s"
+	@echo "... uta_opspace/SurfaceMotion.o"
+	@echo "... uta_opspace/SurfaceMotion.i"
+	@echo "... uta_opspace/SurfaceMotion.s"
+	@echo "... uta_opspace/SurfaceOriMotion.o"
+	@echo "... uta_opspace/SurfaceOriMotion.i"
+	@echo "... uta_opspace/SurfaceOriMotion.s"
 	@echo "... uta_opspace/TaskOriPostureSkill.o"
 	@echo "... uta_opspace/TaskOriPostureSkill.i"
 	@echo "... uta_opspace/TaskOriPostureSkill.s"

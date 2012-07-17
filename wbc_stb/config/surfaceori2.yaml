@@ -1,0 +1,38 @@
+- tasks:
+  - type: opspace::TestImplicitSurfaceTask
+    name: task
+    end_effector: 5
+    kp: [  0.1 ]
+    kd: [   0.0 ]
+    control_point: [ 0, 0, 0.05 ]
+    R: 0.1
+    T: 0.4
+  - type: opspace::TestVelOriSurfaceTask
+    name: task2
+    end_effector: 5
+    kp: [   0.1,  0.1, 0.1]
+    kd: [   0.0,  0.0, 0.0 ]
+    control_point: [ 0, 0, 0.05 ]
+    R: 0.1
+    T: 0.4
+  - type: opspace::TestPureSelectCartPosTask
+    name: task3
+    end_effector: 5
+    kp: [   0.1,  0.1 ]
+    kd: [   0.0,  0.0 ]
+    control_point: [ 0, 0, 0.05 ]
+    goalvel: [ 0.0, 0.0 ]
+    selection: [1, 1, 0]
+
+- skills:
+  - type: uta_opspace::SurfaceOriMotion
+    name: threetask
+    threshold: 0.01
+    vel_threshold: 0.10
+    eepos: [ 0.475, 0.1,
+             0.475, 0.0 ]
+    ee_num: 2
+    slots:
+      surface: task
+      ori: task2
+      eepos: task3
