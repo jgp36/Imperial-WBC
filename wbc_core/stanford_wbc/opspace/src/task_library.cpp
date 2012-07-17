@@ -3035,7 +3035,7 @@ void TestKnownImplicitSurfaceTask::
       double zdot = cartVel(2);
       //TODO implement method of setting point motion
 
-      double r, xc, yc, zc, xcdot, ycdot, zcdot, xcddot, ycddot, zcddot;
+      double r, rdot, xc, yc, zc, xcdot, ycdot, zcdot, xcddot, ycddot, zcddot;
       double f = T_;
       vel_ = Vector::Zero(1);
       acc_ = Vector::Zero(1);
@@ -3047,13 +3047,18 @@ void TestKnownImplicitSurfaceTask::
 	zc = model.getState().camData_(ii,2);
 
 	r = sqrt(pow(x-xc,2)+pow(y-yc,2)+pow(z-zc,2));
+	rdot = ((x-xc)*(xdot-xcdot)+(y-yc)*(ydot-ycdot)+(z-zc)*(zdot-zcdot))/r;
+
 	if (r < R_) {
 	  f -= pow(1-r/R_,6)*(35*pow(r/R_,2)+18*r/R_+3);
 	  gradf(0,0) = gradf(0,0) + ((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*(x-xc)/r;
 	  gradf(0,1) = gradf(0,1) + ((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*(y-yc)/r;
 	  gradf(0,2) = gradf(0,2) + ((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*(z-zc)/r;
-	  vel_(0) = vel_(0) + ((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*(x*xcdot - xc*xcdot + y*ycdot - yc*ycdot + z*zcdot - zc*zcdot)/r;
-	  acc_(0) = acc_(0) - ((x*xcdot-x*xdot-xc*xcdot+xc*xdot+y*ycdot-y*ydot-yc*ycdot+yc*ydot+z*zcdot-z*zdot-zc*zcdot+zc*zdot)/r)*((56*pow(R_ - r,4)*(pow(R_,2) + 4*R_*r - 35*pow(r,2)))/pow(R_,8))*((x*xcdot - xc*xcdot + y*ycdot - yc*ycdot + z*zcdot - zc*zcdot)/r) - (56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8)*((pow(xcdot,2) - xdot*xcdot + pow(ycdot,2) - ydot*ycdot + pow(zcdot,2) - zdot*zcdot - xcddot*(x - xc) - ycddot*(y - yc) - zcddot*(z - zc))/r - (x*xcdot-x*xdot-xc*xcdot+xc*xdot+y*ycdot-y*ydot-yc*ycdot+yc*ydot+z*zcdot-z*zdot-zc*zcdot+zc*zdot)*(x*xcdot - xc*xcdot + y*ycdot - yc*ycdot + z*zcdot - zc*zcdot)/pow(r,3));
+
+	  vel_(0) = vel_(0) + ((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*(xcdot*(x-xc) + ycdot*(y-yc) + zcdot*(z-zc))/r;
+
+	  acc_(0) = acc_(0) + rdot*((56*pow(R_ - r,4)*(pow(R_,2) + 4*R_*r - 35*pow(r,2)))/pow(R_,8))*(xcdot*(x-xc) + ycdot*(y-yc) + zcdot*(z-zc))/r - ((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*(((xdot-xcdot)*xcdot + (x-xc)*xcddot + (ydot-ycdot)*ycdot + (y-yc)*ycddot + (zdot-zcdot)*zcdot + (z-zc)*zcddot)/r - rdot*(xcdot*(x-xc) + ycdot*(y-yc) + zcdot*(z-zc))/pow(r,2));
+
 	}
       }
       actual_(0) = f;
@@ -3184,7 +3189,8 @@ taoDNode const * TestVelOriSurfaceTask::
 	zc = model.getState().camData_(ii,2);
 	
 	r = sqrt(pow(x-xc,2)+pow(y-yc,2)+pow(z-zc,2));
-	rdot = - (x*xcdot-x*xdot-xc*xcdot+xc*xdot+y*ycdot-y*ydot-yc*ycdot+yc*ydot+z*zcdot-z*zdot-zc*zcdot+zc*zdot)/r;
+	rdot = ((x-xc)*(xdot-xcdot)+(y-yc)*(ydot-ycdot)+(z-zc)*(zdot-zcdot))/r;
+
 	if (r < R_) {
 	  f -= pow(1-r/R_,6)*(35*pow(r/R_,2)+18*r/R_+3);
 	  gradf(0,0) = gradf(0,0) + ((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*(x-xc)/r;
@@ -3199,10 +3205,175 @@ taoDNode const * TestVelOriSurfaceTask::
 	}
       }
       
-      if (sqrt(pow(gradf(0),2)+pow(gradf(1),2)+pow(gradf(2),2)) > 1e-4) {
+      double norm = sqrt(pow(gradf(0),2)+pow(gradf(1),2)+pow(gradf(2),2));
+      if (norm > 1e-4) {
 	for (size_t ii(0); ii<3; ++ii) {
-	  ngradf(ii) = gradf(ii)/sqrt(pow(gradf(0),2)+pow(gradf(1),2)+pow(gradf(2),2));
-	  dngradf(ii) = dgradf(ii)/sqrt(pow(gradf(0),2)+pow(gradf(1),2)+pow(gradf(2),2)) - gradf(ii)*(gradf(0)+gradf(1)+gradf(2))/sqrt(pow(pow(gradf(0),2)+pow(gradf(1),2)+pow(gradf(2),2),3));
+	  ngradf(ii) = gradf(ii)/norm;
+	  dngradf(ii) = dgradf(ii)/norm - gradf(ii)*(gradf(0)*dgradf(0)+gradf(1)*dgradf(1)+gradf(2)*dgradf(2))/pow(norm,3);
+	}
+      }
+      
+    }
+    return end_effector_node_;
+  }
+
+TestOriSurfaceTask::
+  TestOriSurfaceTask(std::string const & name)
+    : Task(name),
+      end_effector_id_(-1),
+      control_point_(Vector::Zero(3)),
+      end_effector_node_(0),
+      kp_(Vector::Zero(2)),
+      kd_(Vector::Zero(2))
+  {
+    declareParameter("end_effector",  &end_effector_id_ );
+    declareParameter("control_point", &control_point_);
+    declareParameter("kp", &kp_);
+    declareParameter("kd", &kd_);
+    declareParameter("R", &R_);
+    declareParameter("T", &T_);
+  }
+
+
+ Status TestOriSurfaceTask::
+  init(Model const & model) {
+    if (0 > end_effector_id_) {
+      return Status(false, "you did not (correctly) set end_effector_id");
+    }
+    if (3 != control_point_.rows()) {
+      return Status(false, "control_point needs to be three dimensional");
+    }
+    if (0 == updateActual(model)) {
+      return Status(false, "updateActual() failed, did you specify a valid end_effector_id?");
+    }
+    Status ok;
+    return ok;
+  }
+
+
+Status TestOriSurfaceTask::
+  update(Model const & model) {
+    end_effector_node_ = updateActual(model);
+    if ( ! end_effector_node_) {
+      return Status(false, "invalid end_effector");
+    }
+
+    Vector vel(jacobian_ * model.getFullState().velocity_);
+
+    Vector alpha(Vector::Zero(3));
+    Vector w(Vector::Zero(3));
+    Vector error(Vector::Zero(3));
+
+    alpha(0) = ngradf(0,1)*ddngradf(0,2) - ngradf(0,2)*ddngradf(0,1);
+    alpha(1) = -(ngradf(0,0)*ddngradf(0,2) - ngradf(0,2)*ddngradf(0,0));
+    alpha(2) = ngradf(0,0)*ddngradf(0,1) - ngradf(0,1)*ddngradf(0,0);   
+
+    w(0) = ngradf(0,1)*dngradf(0,2) - ngradf(0,2)*dngradf(0,1);
+    w(1) = -(ngradf(0,0)*dngradf(0,2) - ngradf(0,2)*dngradf(0,0));
+    w(2) = ngradf(0,0)*dngradf(0,1) - ngradf(0,1)*dngradf(0,0);
+
+    error(0) = ngradf(0,1)*actual_(2) - ngradf(0,2)*actual_(1);
+    error(1) = -(ngradf(0,0)*actual_(2) - ngradf(0,2)*actual_(0));
+    error(2) = ngradf(0,0)*actual_(1) - ngradf(0,1)*actual_(0);
+
+    command_ = alpha - kp_.cwise() * error + kd_.cwise()*(w - vel);
+
+    Status ok;
+    return ok;
+  }
+
+  void TestOriSurfaceTask::
+  dbg(std::ostream & os,std::string const & title,std::string const & prefix) const {
+    if ( ! title.empty()) {
+      os << title << "\n";
+    }
+    os << prefix << "Vel Ori Surface Task: `" << instance_name_ << "'\n";
+
+    pretty_print(actual_, os, prefix + "  actual", prefix + "    ");
+    pretty_print(jacobian_, os, prefix + "  jacobian", prefix + "    ");
+    pretty_print(command_, os, prefix + "  command", prefix + "    ");
+  }
+
+taoDNode const * TestOriSurfaceTask::
+  updateActual(Model const & model) {
+    if ( ! end_effector_node_) {
+      end_effector_node_ = model.getNode(end_effector_id_);
+    }
+    if (end_effector_node_) {
+      jspace::Transform ee_transform;
+      model.computeGlobalFrame(end_effector_node_,
+			       control_point_[0],
+			       control_point_[1],
+			       control_point_[2],
+			       ee_transform);
+
+      actual_.resize(3);
+      actual_ = -ee_transform.linear().block(0, 2, 3, 1);
+
+      Vector eepos = ee_transform.translation();
+      double x = eepos(0);
+      double y = eepos(1);
+      double z = eepos(2);
+
+      Matrix Jfull;
+      if ( ! model.computeJacobian(end_effector_node_, x, y, z, Jfull)) {
+	return 0;
+      }
+      jacobian_ = Jfull.block(3,0,3,Jfull.cols());
+
+      Vector eevel(jacobian_*model.getState().velocity_);
+      double xdot = eevel(0);
+      double ydot = eevel(1);
+      double zdot = eevel(2);
+
+      double r, rdot, rddot, xc, yc, zc;
+      double xcdot = 0; double ycdot = 0; double zcdot = 0;
+      double xcddot = 0; double ycddot = 0; double zcddot = 0;
+      double f = T_;
+      
+      Matrix gradf(Matrix::Zero(1,3));
+      Matrix dgradf(Matrix::Zero(1,3));
+      Matrix ddgradf(Matrix::Zero(1,3));
+      ngradf = Matrix::Zero(1,3);
+      dngradf = Matrix::Zero(1,3);
+      ddngradf = Matrix::Zero(1,3);
+
+      for (size_t ii=0; ii < model.getState().camData_.rows();++ii) {
+	xc = model.getState().camData_(ii,0);
+	yc = model.getState().camData_(ii,1);
+	zc = model.getState().camData_(ii,2);
+	
+	r = sqrt(pow(x-xc,2)+pow(y-yc,2)+pow(z-zc,2));
+	rdot = ((x-xc)*(xdot-xcdot)+(y-yc)*(ydot-ycdot)+(z-zc)*(zdot-zcdot))/r;
+	rddot = (pow(xdot-xcdot,2) + (x-xc)*(xddot-xcddot) + pow(ydot-ycdot,2) + (y-yc)*(yddot-ycddot) + pow(zdot-zcdot,2) + (z-zc)*(zddot-zcddot))/r - pow(rdot,2)/r;
+
+	if (r < R_) {
+	  f -= pow(1-r/R_,6)*(35*pow(r/R_,2)+18*r/R_+3);
+	  gradf(0,0) = gradf(0,0) + ((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*(x-xc)/r;
+	  gradf(0,1) = gradf(0,1) + ((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*(y-yc)/r;
+	  gradf(0,2) = gradf(0,2) + ((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*(z-zc)/r;
+
+	  dgradf(0,0) = dgradf(0,0) + rdot*(56*pow(R_ - r,4)*((pow(R_,2) + 4*R_*r - 35*pow(r,2)))/pow(R_,8))*(x-xc)/r + ((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*((xdot-xcdot)/r-rdot*(x-xc)/pow(r,2));
+
+	  dgradf(0,1) = dgradf(0,1) + rdot*(56*pow(R_ - r,4)*((pow(R_,2) + 4*R_*r - 35*pow(r,2)))/pow(R_,8))*(x-xc)/r + ((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*((ydot-ycdot)/r-rdot*(y-yc)/pow(r,2));
+
+	  dgradf(0,2) = dgradf(0,2) + rdot*(56*pow(R_ - r,4)*((pow(R_,2) + 4*R_*r - 35*pow(r,2)))/pow(R_,8))*(x-xc)/r + ((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*((zdot-zcdot)/r-rdot*(z-zc)/pow(r,2));
+
+	  ddgradf(0,0) = ddgradf(0,0) + rddot*((56*pow(R_ - r,4)*(pow(R_,2) + 4*R_*r - 35*pow(r,2)))/pow(R_,8))*(x-xc)/r+pow(rdot,2)*(-(1680*r*pow(R_ - r,3)*(3*R_ - 7*r))/pow(R_,8))*(x-xc)/r+2*rdot*((56*pow(R_ - r,4)*(pow(R_,2) + 4*R_*r - 35*pow(r,2)))/pow(R_,8))*((xdot-xcdot)/r-rdot*(x-xc)/pow(r,2))+((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*((xddot-xcddot)/r-2*rdot*(xdot-xcdot)/pow(r,2)-rddot*(x-xc)/pow(r,2)+2*pow(rdot,2)*(x-xc)/pow(r,3));
+
+	  ddgradf(0,1) = ddgradf(0,1) + rddot*((56*pow(R_ - r,4)*(pow(R_,2) + 4*R_*r - 35*pow(r,2)))/pow(R_,8))*(y-yc)/r+pow(rdot,2)*(-(1680*r*pow(R_ - r,3)*(3*R_ - 7*r))/pow(R_,8))*(y-yc)/r+2*rdot*((56*pow(R_ - r,4)*(pow(R_,2) + 4*R_*r - 35*pow(r,2)))/pow(R_,8))*((ydot-ycdot)/r-rdot*(y-yc)/pow(r,2))+((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*((yddot-ycddot)/r-2*rdot*(ydot-ycdot)/pow(r,2)-rddot*(y-yc)/pow(r,2)+2*pow(rdot,2)*(y-yc)/pow(r,3));
+
+	  ddgradf(0,2) = ddgradf(0,2) + rddot*((56*pow(R_ - r,4)*(pow(R_,2) + 4*R_*r - 35*pow(r,2)))/pow(R_,8))*(z-zc)/r+pow(rdot,2)*(-(1680*r*pow(R_ - r,3)*(3*R_ - 7*r))/pow(R_,8))*(z-zc)/r+2*rdot*((56*pow(R_ - r,4)*(pow(R_,2) + 4*R_*r - 35*pow(r,2)))/pow(R_,8))*((zdot-zcdot)/r-rdot*(z-zc)/pow(r,2))+((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*((zddot-zcddot)/r-2*rdot*(zdot-zcdot)/pow(r,2)-rddot*(z-zc)/pow(r,2)+2*pow(rdot,2)*(z-zc)/pow(r,3));
+
+	}
+      }
+      
+      double norm = sqrt(pow(gradf(0),2)+pow(gradf(1),2)+pow(gradf(2),2));
+      if (norm > 1e-4) {
+	for (size_t ii(0); ii<3; ++ii) {
+	  ngradf(ii) = gradf(ii)/norm;
+	  dngradf(ii) = dgradf(ii)/norm - gradf(ii)*(gradf(0)*dgradf(0)+gradf(1)*dgradf(1)+gradf(2)*dgradf(2))/pow(norm,3);
+	  ddngradf(ii) = ddgradf(ii)/norm - 2*dgradf(ii)*(gradf(0)*dgradf(0)+gradf(1)*dgradf(1)+gradf(2)*dgradf(2))/pow(norm,3) - gradf(ii)*(pow(dgradf(0),2) + gradf(0)*ddgradf(0) + pow(dgradf(1),2) + gradf(1)*ddgradf(1) + pow(dgradf(2),2) + gradf(2)*ddgradf(2))/pow(norm,3) + 3*gradf(ii)*pow(gradf(0)*dgradf(0)+gradf(1)*dgradf(1)+gradf(2)*dgradf(2),2)/pow(norm,5);
 	}
       }
       
