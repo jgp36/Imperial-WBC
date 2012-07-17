@@ -2943,4 +2943,123 @@ namespace opspace {
     return end_effector_node_;
   }
 
+  TestKnownImplicitSurfaceTask::
+  TestKnownImplicitSurfaceTask(std::string const & name)
+    : Task(name),
+      end_effector_id_(-1),
+      control_point_(Vector::Zero(3)),
+      end_effector_node_(0),
+      kp_(0),
+      kd_(0)
+  {
+    declareParameter("end_effector",  &end_effector_id_ );
+    declareParameter("control_point", &control_point_);
+    declareParameter("kp", &kp_);
+    declareParameter("kd", &kd_);
+    declareParameter("R", &R_);
+    declareParameter("T", &T_);
+  }
+
+  Status TestKnownImplicitSurfaceTask::
+  init(Model const & model) {
+    if (0 > end_effector_id_) {
+      return Status(false, "you did not (correctly) set end_effector_id");
+    }
+    if (3 != control_point_.rows()) {
+      return Status(false, "control_point needs to be three dimensional");
+    }
+    if (0 == updateActual(model)) {
+      return Status(false, "updateActual() failed, did you specify a valid end_effector_id?");
+    }
+    Status ok;
+    return ok;
+  }
+
+
+  Status TestKnownImplicitSurfaceTask::
+  update(Model const & model) {
+    end_effector_node_ = updateActual(model);
+    if ( ! end_effector_node_) {
+      return Status(false, "invalid end_effector");
+    }
+
+    Vector actvel(jacobian_ * model.getFullState().velocity_);
+
+    command_ = acc_ - kp_.cwise() * actual_ + kd_.cwise() * (vel_ - actvel);
+
+    Status ok;
+    return ok;
+  }
+
+  void TestKnownImplicitSurfaceTask::
+  dbg(std::ostream & os,std::string const & title,std::string const & prefix) const {
+    if ( ! title.empty()) {
+      os << title << "\n";
+    }
+    os << prefix << "Implicit Surface Task: `" << instance_name_ << "'\n";
+
+    pretty_print(actual_, os, prefix + "  actual", prefix + "    ");
+    pretty_print(jacobian_, os, prefix + "  jacobian", prefix + "    ");
+    pretty_print(command_, os, prefix + "  command", prefix + "    ");
+  }
+
+  taoDNode const * TestKnownImplicitSurfaceTask::
+  updateActual(Model const & model) {
+    if ( ! end_effector_node_) {
+      end_effector_node_ = model.getNode(end_effector_id_);
+    }
+    if (end_effector_node_) {
+      jspace::Transform ee_transform;
+      model.computeGlobalFrame(end_effector_node_,
+			       control_point_[0],
+			       control_point_[1],
+			       control_point_[2],
+			       ee_transform);
+      
+      actual_ = Vector::Zero(1);
+
+      Vector eepos = ee_transform.translation();
+      double x = eepos(0);
+      double y = eepos(1);
+      double z = eepos(2);
+      Matrix Jfull;
+      if ( ! model.computeJacobian(end_effector_node_, x, y, z, Jfull)) {
+	return 0;
+      }
+      Vector cartVel(Jfull.block(0,0,3,Jfull.cols())*model.getFullState().velocity_);
+      double xdot = cartVel(0);
+      double ydot = cartVel(1);      
+      double zdot = cartVel(2);
+      //TODO implement method of setting point motion
+
+      double r, xc, yc, zc, xcdot, ycdot, zcdot, xcddot, ycddot, zcddot;
+      double f = T_;
+      vel_ = Vector::Zero(1);
+      acc_ = Vector::Zero(1);
+
+      Matrix gradf(Matrix::Zero(1,3));
+      for (size_t ii=0; ii < model.getState().camData_.rows();++ii) {
+	xc = model.getState().camData_(ii,0);
+	yc = model.getState().camData_(ii,1);
+	zc = model.getState().camData_(ii,2);
+
+	r = sqrt(pow(x-xc,2)+pow(y-yc,2)+pow(z-zc,2));
+	if (r < R_) {
+	  f -= pow(1-r/R_,6)*(35*pow(r/R_,2)+18*r/R_+3);
+	  gradf(0,0) = gradf(0,0) + ((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*(x-xc)/r;
+	  gradf(0,1) = gradf(0,1) + ((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*(y-yc)/r;
+	  gradf(0,2) = gradf(0,2) + ((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*(z-zc)/r;
+	  vel_(0) = vel_(0) + ((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*(x*xcdot - xc*xcdot + y*ycdot - yc*ycdot + z*zcdot - zc*zcdot)/r;
+	  acc_(0) = acc_(0) - ((x*xcdot-x*xdot-xc*xcdot+xc*xdot+y*ycdot-y*ydot-yc*ycdot+yc*ydot+z*zcdot-z*zdot-zc*zcdot+zc*zdot)/r)*((56*pow(R_ - r,4)*(pow(R_,2) + 4*R_*r - 35*pow(r,2)))/pow(R_,8))*((x*xcdot - xc*xcdot + y*ycdot - yc*ycdot + z*zcdot - zc*zcdot)/r) - (56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8)*((pow(xcdot,2) - xdot*xcdot + pow(ycdot,2) - ydot*ycdot + pow(zcdot,2) - zdot*zcdot - xcddot*(x - xc) - ycddot*(y - yc) - zcddot*(z - zc))/r - (x*xcdot-x*xdot-xc*xcdot+xc*xdot+y*ycdot-y*ydot-yc*ycdot+yc*ydot+z*zcdot-z*zdot-zc*zcdot+zc*zdot)*(x*xcdot - xc*xcdot + y*ycdot - yc*ycdot + z*zcdot - zc*zcdot)/pow(r,3));
+	}
+      }
+      actual_(0) = f;
+
+
+      jacobian_ = gradf*Jfull.block(0,0,3,Jfull.cols());
+
+    }
+    return end_effector_node_;
+  }
+
 }
