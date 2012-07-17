@@ -1,0 +1,15 @@
+- tasks:
+  - type: opspace::TestImplicitSurfaceTask
+    name: task
+    end_effector: 5
+    kp: [  0.1 ]
+    kd: [  0.0 ]
+    control_point: [ 0, 0, 0 ]
+    R: 0.1
+    T: 0.4
+
+- skills:
+  - type: opspace::GenericSkill
+    name: surfacetest
+    slots:
+      task: task
