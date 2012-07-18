@@ -149,6 +149,12 @@ namespace uta_opspace {
 	camPos(cur_row_-1,0) = model.getState().camData_(0,0);
 	camPos(cur_row_-1,1) = model.getState().camData_(0,1);
 	camPos(cur_row_-1,2) = model.getState().camData_(0,2);
+
+	if (camPos(cur_row_-1,0) < -100) {
+	   st.ok = false;
+      	   st.errstr = "Marker Missing";
+      	   return st;
+	}
       }
       //Calculate Transform
       else if (tfdone_ == false) { 
@@ -161,6 +167,12 @@ namespace uta_opspace {
 	camPos(cur_row_,0) = model.getState().camData_(0,0);
 	camPos(cur_row_,1) = model.getState().camData_(0,1);
 	camPos(cur_row_,2) = model.getState().camData_(0,2);
+
+	if (camPos(cur_row_,0) < -100) {
+	   st.ok = false;
+      	   st.errstr = "Marker Missing";
+      	   return st;
+	}
 
 	//Find centroids
 	Vector robotCent(Vector::Zero(3));

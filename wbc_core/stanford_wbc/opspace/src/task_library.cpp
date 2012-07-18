@@ -2949,9 +2949,7 @@ namespace opspace {
     : Task(name),
       end_effector_id_(-1),
       control_point_(Vector::Zero(3)),
-      end_effector_node_(0),
-      kp_(0),
-      kd_(0)
+      end_effector_node_(0)
  {
     declareParameter("end_effector",  &end_effector_id_ );
     declareParameter("control_point", &control_point_);
@@ -3124,8 +3122,8 @@ Status TestVelOriSurfaceTask::
     error(1) = -(ngradf(0,0)*actual_(2) - ngradf(0,2)*actual_(0));
     error(2) = ngradf(0,0)*actual_(1) - ngradf(0,1)*actual_(0);
 
-    //command_ = w - kp_.cwise() * error ;
-    command_ =  kp_.cwise() * (-error) ;
+    command_ = w - kp_.cwise() * error ;
+    //command_ =  kp_.cwise() * (-error) ;
 
     Status ok;
     return ok;
@@ -3141,6 +3139,8 @@ Status TestVelOriSurfaceTask::
     pretty_print(actual_, os, prefix + "  actual", prefix + "    ");
     pretty_print(jacobian_, os, prefix + "  jacobian", prefix + "    ");
     pretty_print(command_, os, prefix + "  command", prefix + "    ");
+    pretty_print(ngradf, os, prefix + "  ngradf", prefix + "    ");
+    pretty_print(dngradf, os, prefix + "  dngradf", prefix + "    ");
   }
 
 taoDNode const * TestVelOriSurfaceTask::
@@ -3199,18 +3199,20 @@ taoDNode const * TestVelOriSurfaceTask::
 
 	  dgradf(0,0) = dgradf(0,0) + rdot*(56*pow(R_ - r,4)*((pow(R_,2) + 4*R_*r - 35*pow(r,2)))/pow(R_,8))*(x-xc)/r + ((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*((xdot-xcdot)/r-rdot*(x-xc)/pow(r,2));
 
-	  dgradf(0,1) = dgradf(0,1) + rdot*(56*pow(R_ - r,4)*((pow(R_,2) + 4*R_*r - 35*pow(r,2)))/pow(R_,8))*(x-xc)/r + ((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*((ydot-ycdot)/r-rdot*(y-yc)/pow(r,2));
+	  dgradf(0,1) = dgradf(0,1) + rdot*(56*pow(R_ - r,4)*((pow(R_,2) + 4*R_*r - 35*pow(r,2)))/pow(R_,8))*(y-yc)/r + ((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*((ydot-ycdot)/r-rdot*(y-yc)/pow(r,2));
 
-	  dgradf(0,2) = dgradf(0,2) + rdot*(56*pow(R_ - r,4)*((pow(R_,2) + 4*R_*r - 35*pow(r,2)))/pow(R_,8))*(x-xc)/r + ((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*((zdot-zcdot)/r-rdot*(z-zc)/pow(r,2));
+	  dgradf(0,2) = dgradf(0,2) + rdot*(56*pow(R_ - r,4)*((pow(R_,2) + 4*R_*r - 35*pow(r,2)))/pow(R_,8))*(z-zc)/r + ((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*((zdot-zcdot)/r-rdot*(z-zc)/pow(r,2));
 	}
       }
       
-      double norm = sqrt(pow(gradf(0),2)+pow(gradf(1),2)+pow(gradf(2),2));
+      double norm = sqrt(pow(gradf(0,0),2)+pow(gradf(0,1),2)+pow(gradf(0,2),2));
       if (norm > 1e-4) {
 	for (size_t ii(0); ii<3; ++ii) {
-	  ngradf(ii) = gradf(ii)/norm;
-	  dngradf(ii) = dgradf(ii)/norm - gradf(ii)*(gradf(0)*dgradf(0)+gradf(1)*dgradf(1)+gradf(2)*dgradf(2))/pow(norm,3);
+	  ngradf(ii) = gradf(0,ii)/norm;
 	}
+	dngradf(0,0) = (dgradf(0,0)*pow(gradf(0,1),2) - gradf(0,0)*dgradf(0,1)*gradf(0,1) + dgradf(0,0)*pow(gradf(0,2),2) - gradf(0,0)*dgradf(0,2)*gradf(0,2))/pow(norm,3);
+	dngradf(0,1) = (dgradf(0,1)*pow(gradf(0,0),2) - gradf(0,1)*dgradf(0,0)*gradf(0,0) + dgradf(0,1)*pow(gradf(0,2),2) - gradf(0,1)*dgradf(0,2)*gradf(0,2))/pow(norm,3);
+	dngradf(0,2) = (dgradf(0,2)*pow(gradf(0,0),2) - gradf(0,2)*dgradf(0,0)*gradf(0,0) + dgradf(0,2)*pow(gradf(0,1),2) - gradf(0,2)*dgradf(0,1)*gradf(0,1))/pow(norm,3);
       }
       
     }
@@ -3355,9 +3357,9 @@ taoDNode const * TestOriSurfaceTask::
 
 	  dgradf(0,0) = dgradf(0,0) + rdot*(56*pow(R_ - r,4)*((pow(R_,2) + 4*R_*r - 35*pow(r,2)))/pow(R_,8))*(x-xc)/r + ((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*((xdot-xcdot)/r-rdot*(x-xc)/pow(r,2));
 
-	  dgradf(0,1) = dgradf(0,1) + rdot*(56*pow(R_ - r,4)*((pow(R_,2) + 4*R_*r - 35*pow(r,2)))/pow(R_,8))*(x-xc)/r + ((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*((ydot-ycdot)/r-rdot*(y-yc)/pow(r,2));
+	  dgradf(0,1) = dgradf(0,1) + rdot*(56*pow(R_ - r,4)*((pow(R_,2) + 4*R_*r - 35*pow(r,2)))/pow(R_,8))*(y-yc)/r + ((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*((ydot-ycdot)/r-rdot*(y-yc)/pow(r,2));
 
-	  dgradf(0,2) = dgradf(0,2) + rdot*(56*pow(R_ - r,4)*((pow(R_,2) + 4*R_*r - 35*pow(r,2)))/pow(R_,8))*(x-xc)/r + ((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*((zdot-zcdot)/r-rdot*(z-zc)/pow(r,2));
+	  dgradf(0,2) = dgradf(0,2) + rdot*(56*pow(R_ - r,4)*((pow(R_,2) + 4*R_*r - 35*pow(r,2)))/pow(R_,8))*(z-zc)/r + ((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*((zdot-zcdot)/r-rdot*(z-zc)/pow(r,2));
 
 	  ddgradf(0,0) = ddgradf(0,0) + rddot*((56*pow(R_ - r,4)*(pow(R_,2) + 4*R_*r - 35*pow(r,2)))/pow(R_,8))*(x-xc)/r+pow(rdot,2)*(-(1680*r*pow(R_ - r,3)*(3*R_ - 7*r))/pow(R_,8))*(x-xc)/r+2*rdot*((56*pow(R_ - r,4)*(pow(R_,2) + 4*R_*r - 35*pow(r,2)))/pow(R_,8))*((xdot-xcdot)/r-rdot*(x-xc)/pow(r,2))+((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*((xddot-xcddot)/r-2*rdot*(xdot-xcdot)/pow(r,2)-rddot*(x-xc)/pow(r,2)+2*pow(rdot,2)*(x-xc)/pow(r,3));
 
@@ -3368,13 +3370,20 @@ taoDNode const * TestOriSurfaceTask::
 	}
       }
       
-      double norm = sqrt(pow(gradf(0),2)+pow(gradf(1),2)+pow(gradf(2),2));
+      double norm = sqrt(pow(gradf(0,0),2)+pow(gradf(0,1),2)+pow(gradf(0,2),2));
       if (norm > 1e-4) {
 	for (size_t ii(0); ii<3; ++ii) {
 	  ngradf(ii) = gradf(ii)/norm;
-	  dngradf(ii) = dgradf(ii)/norm - gradf(ii)*(gradf(0)*dgradf(0)+gradf(1)*dgradf(1)+gradf(2)*dgradf(2))/pow(norm,3);
-	  ddngradf(ii) = ddgradf(ii)/norm - 2*dgradf(ii)*(gradf(0)*dgradf(0)+gradf(1)*dgradf(1)+gradf(2)*dgradf(2))/pow(norm,3) - gradf(ii)*(pow(dgradf(0),2) + gradf(0)*ddgradf(0) + pow(dgradf(1),2) + gradf(1)*ddgradf(1) + pow(dgradf(2),2) + gradf(2)*ddgradf(2))/pow(norm,3) + 3*gradf(ii)*pow(gradf(0)*dgradf(0)+gradf(1)*dgradf(1)+gradf(2)*dgradf(2),2)/pow(norm,5);
 	}
+	dngradf(0,0) = (dgradf(0,0)*pow(gradf(0,1),2) - gradf(0,0)*dgradf(0,1)*gradf(0,1) + dgradf(0,0)*pow(gradf(0,2),2) - gradf(0,0)*dgradf(0,2)*gradf(0,2))/pow(norm,3);
+	dngradf(0,1) = (dgradf(0,1)*pow(gradf(0,0),2) - gradf(0,1)*dgradf(0,0)*gradf(0,0) + dgradf(0,1)*pow(gradf(0,2),2) - gradf(0,1)*dgradf(0,2)*gradf(0,2))/pow(norm,3);
+	dngradf(0,2) = (dgradf(0,2)*pow(gradf(0,0),2) - gradf(0,2)*dgradf(0,0)*gradf(0,0) + dgradf(0,2)*pow(gradf(0,1),2) - gradf(0,2)*dgradf(0,1)*gradf(0,1))/pow(norm,3);
+
+	ddngradf(0,0) = -(3*pow(dgradf(0,0),2)*gradf(0,0)*pow(gradf(0,1),2) + 3*pow(dgradf(0,0),2)*gradf(0,0)*pow(gradf(0,2),2) - 4*dgradf(0,0)*dgradf(0,1)*pow(gradf(0,0),2)*gradf(0,1) + 2*dgradf(0,0)*dgradf(0,1)*pow(gradf(0,1),3) + 2*dgradf(0,0)*dgradf(0,1)*gradf(0,1)*pow(gradf(0,2),2) - 4*dgradf(0,0)*dgradf(0,2)*pow(gradf(0,0),2)*gradf(0,2) + 2*dgradf(0,0)*dgradf(0,2)*pow(gradf(0,1),2)*gradf(0,2) + 2*dgradf(0,0)*dgradf(0,2)*pow(gradf(0,2),3) + pow(dgradf(0,1),2)*pow(gradf(0,0),3) - 2*pow(dgradf(0,1),2)*gradf(0,0)*pow(gradf(0,1),2) + pow(dgradf(0,1),2)*gradf(0,0)*pow(gradf(0,2),2) - 6*dgradf(0,1)*dgradf(0,2)*gradf(0,0)*gradf(0,1)*gradf(0,2) + pow(dgradf(0,2),2)*pow(gradf(0,0),3) + pow(dgradf(0,2),2)*gradf(0,0)*pow(gradf(0,1),2) - 2*pow(dgradf(0,2),2)*gradf(0,0)*pow(gradf(0,2),2) + ddgradf(0,1)*pow(gradf(0,0),3)*gradf(0,1) + ddgradf(0,2)*pow(gradf(0,0),3)*gradf(0,2) - ddgradf(0,0)*pow(gradf(0,0),2)*pow(gradf(0,1),2) - ddgradf(0,0)*pow(gradf(0,0),2)*pow(gradf(0,2),2) + ddgradf(0,1)*gradf(0,0)*pow(gradf(0,1),3) + ddgradf(0,2)*gradf(0,0)*pow(gradf(0,1),2)*gradf(0,2) + ddgradf(0,1)*gradf(0,0)*gradf(0,1)*pow(gradf(0,2),2) + ddgradf(0,2)*gradf(0,0)*pow(gradf(0,2),3) - ddgradf(0,0)*pow(gradf(0,1),4) - 2*ddgradf(0,0)*pow(gradf(0,1),2)*pow(gradf(0,2),2) - ddgradf(0,0)*pow(gradf(0,2),4))/pow(norm,5);
+
+	ddngradf(0,1) = -(- 2*pow(dgradf(0,0),2)*pow(gradf(0,0),2)*gradf(0,1) + pow(dgradf(0,0),2)*pow(gradf(0,1),3) + pow(dgradf(0,0),2)*gradf(0,1)*pow(gradf(0,2),2) + 2*dgradf(0,0)*dgradf(0,1)*pow(gradf(0,0),3) - 4*dgradf(0,0)*dgradf(0,1)*gradf(0,0)*pow(gradf(0,1),2) + 2*dgradf(0,0)*dgradf(0,1)*gradf(0,0)*pow(gradf(0,2),2) - 6*dgradf(0,0)*dgradf(0,2)*gradf(0,0)*gradf(0,1)*gradf(0,2) + 3*pow(dgradf(0,1),2)*pow(gradf(0,0),2)*gradf(0,1) + 3*pow(dgradf(0,1),2)*gradf(0,1)*pow(gradf(0,2),2) + 2*dgradf(0,1)*dgradf(0,2)*pow(gradf(0,0),2)*gradf(0,2) - 4*dgradf(0,1)*dgradf(0,2)*pow(gradf(0,1),2)*gradf(0,2) + 2*dgradf(0,1)*dgradf(0,2)*pow(gradf(0,2),3) + pow(dgradf(0,2),2)*pow(gradf(0,0),2)*gradf(0,1) + pow(dgradf(0,2),2)*pow(gradf(0,1),3) - 2*pow(dgradf(0,2),2)*gradf(0,1)*pow(gradf(0,2),2) - ddgradf(0,1)*pow(gradf(0,0),4) + ddgradf(0,0)*pow(gradf(0,0),3)*gradf(0,1) - ddgradf(0,1)*pow(gradf(0,0),2)*pow(gradf(0,1),2) + ddgradf(0,2)*pow(gradf(0,0),2)*gradf(0,1)*gradf(0,2) - 2*ddgradf(0,1)*pow(gradf(0,0),2)*pow(gradf(0,2),2) + ddgradf(0,0)*gradf(0,0)*pow(gradf(0,1),3) + ddgradf(0,0)*gradf(0,0)*gradf(0,1)*pow(gradf(0,2),2) + ddgradf(0,2)*pow(gradf(0,1),3)*gradf(0,2) - ddgradf(0,1)*pow(gradf(0,1),2)*pow(gradf(0,2),2) + ddgradf(0,2)*gradf(0,1)*pow(gradf(0,2),3) - ddgradf(0,1)*pow(gradf(0,2),4))/pow(norm,5);
+
+	ddngradf(0,2) = -(- 2*pow(dgradf(0,0),2)*pow(gradf(0,0),2)*gradf(0,2) + pow(dgradf(0,0),2)*pow(gradf(0,1),2)*gradf(0,2) + pow(dgradf(0,0),2)*pow(gradf(0,2),3) - 6*dgradf(0,0)*dgradf(0,1)*gradf(0,0)*gradf(0,1)*gradf(0,2) + 2*dgradf(0,0)*dgradf(0,2)*pow(gradf(0,0),3) + 2*dgradf(0,0)*dgradf(0,2)*gradf(0,0)*pow(gradf(0,1),2) - 4*dgradf(0,0)*dgradf(0,2)*gradf(0,0)*pow(gradf(0,2),2) + pow(dgradf(0,1),2)*pow(gradf(0,0),2)*gradf(0,2) - 2*pow(dgradf(0,1),2)*pow(gradf(0,1),2)*gradf(0,2) + pow(dgradf(0,1),2)*pow(gradf(0,2),3) + 2*dgradf(0,1)*dgradf(0,2)*pow(gradf(0,0),2)*gradf(0,1) + 2*dgradf(0,1)*dgradf(0,2)*pow(gradf(0,1),3) - 4*dgradf(0,1)*dgradf(0,2)*gradf(0,1)*pow(gradf(0,2),2) + 3*pow(dgradf(0,2),2)*pow(gradf(0,0),2)*gradf(0,2) + 3*pow(dgradf(0,2),2)*pow(gradf(0,1),2)*gradf(0,2) - ddgradf(0,2)*pow(gradf(0,0),4) + ddgradf(0,0)*pow(gradf(0,0),3)*gradf(0,2) - 2*ddgradf(0,2)*pow(gradf(0,0),2)*pow(gradf(0,1),2) + ddgradf(0,1)*pow(gradf(0,0),2)*gradf(0,1)*gradf(0,2) - ddgradf(0,2)*pow(gradf(0,0),2)*pow(gradf(0,2),2) + ddgradf(0,0)*gradf(0,0)*pow(gradf(0,1),2)*gradf(0,2) + ddgradf(0,0)*gradf(0,0)*pow(gradf(0,2),3) - ddgradf(0,2)*pow(gradf(0,1),4) + ddgradf(0,1)*pow(gradf(0,1),3)*gradf(0,2) - ddgradf(0,2)*pow(gradf(0,1),2)*pow(gradf(0,2),2) + ddgradf(0,1)*gradf(0,1)*pow(gradf(0,2),3))/pow(norm,5);
       }
       
     }
