@@ -1466,7 +1466,7 @@ namespace opspace {
     : Task(name),
       kp_(Vector::Zero(7)),
       kd_(Vector::Zero(7)),
-      goalpos_(Vector::Zero(7))
+      goalpos_(Vector::Zero(6))
   {
     declareParameter("kp", &kp_);
     declareParameter("kd", &kd_);

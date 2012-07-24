@@ -4,7 +4,7 @@
     end_effector: 5
     kp: [  0.1 ]
     kd: [   0.0 ]
-    control_point: [ 0, 0, 0.05 ]
+    control_point: [ 0, 0, 0 ]
     R: 0.1
     T: 0.4
   - type: opspace::TestOriSurfaceTask
@@ -12,7 +12,7 @@
     end_effector: 5
     kp: [   0.1,  0.1, 0.1]
     kd: [   0.0,  0.0, 0.0 ]
-    control_point: [ 0, 0, 0.05 ]
+    control_point: [ 0, 0, 0 ]
     R: 0.1
     T: 0.4
     ffacc: [0.0, 0.0, 0.0]
@@ -22,16 +22,16 @@
     end_effector: 5
     kp: [   0.1,  0.1 ]
     kd: [   0.0,  0.0 ]
-    control_point: [ 0, 0, 0.05 ]
+    control_point: [ 0, 0, 0 ]
     goalvel: [ 0.0, 0.0 ]
     selection: [1, 1, 0]
   - type: opspace::PureCartPosTask
     name: eepos
     end_effector: 5
-    kp: [   0.1,  0.1 ]
-    kd: [   0.0,  0.0 ]
-    control_point: [ 0, 0, 0.05 ]
-    goalvel: [ 0.0, 0.0 ]
+    kp: [   0.1,  0.1,  0.1]
+    kd: [   0.0,  0.0,  0.0 ]
+    control_point: [ 0, 0, 0 ]
+    goalvel: [ 0.0, 0.0, 0.0 ]
   - type: opspace::PureJPosTask
     name: posture
     kp: [  0.1, 0.1, 0.1, 0.1, 0.1, 0.1]

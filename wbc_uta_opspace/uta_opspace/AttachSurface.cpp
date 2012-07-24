@@ -132,6 +132,7 @@ namespace uta_opspace {
   update(Model const & model)
   {
     Status st;    
+    Vector cur_eesurf(Vector::Zero(2));
     Vector cur_eepos(Vector::Zero(3));
     Vector delta;
     Vector v_delta;
@@ -152,15 +153,19 @@ namespace uta_opspace {
     //Update surface calc
     for(int ii=0; ii<ee_num_; ii++) {
       cur_eepos[ii] = ee_pos_[ee_num_*cur_row_+ii];
+      cur_eesurf[ii] = ee_pos_[ee_num_*cur_row_+ii];
     }
     cur_eepos[2] = zoffset_ + zamp_* cos(M_PI * cur_row_ * ee_num_/ee_pos_.rows());  
 
-    if (surface_task_->evalPos(model,cur_eepos) <= surflimit_) state_ = STATE_ATTACHED;
-    else state_ = STATE_NORMAL;
-
+    if (surface_task_->evalPos(model,cur_eepos) <= surflimit_ && surface_task_->evalPos(model,ee_task_->getActual()) <= surflimit_) {
+      state_ = STATE_ATTACHED;
+    }
+    else {
+      state_ = STATE_NORMAL;
+    }
 
     switch(state_) {
-    case STATE_NORMAL:    
+    case STATE_NORMAL:
       delta = cur_eepos - ee_task_->getActual();
       constraint = model.getConstraint();
       if (constraint) {
@@ -171,42 +176,9 @@ namespace uta_opspace {
       else {
 	v_delta = ee_task_->getJacobian()*model.getState().velocity_;
       }
-      
-      if (delta.norm() < threshold_ && v_delta.norm() < vel_threshold_) {
-	if(forward_) {
-	  if (cur_row_ < (ee_pos_.rows()/ee_num_)-1) {
-	    ++cur_row_;
-	    for(size_t jj(0); jj<ee_num_; ++jj) {
-	      cur_eepos[jj] = ee_pos_[ee_num_*cur_row_+jj];
-	    }
-	    cur_eepos[2] = zoffset_ + zamp_* cos(M_PI * cur_row_ * ee_num_/ee_pos_.rows());
-	    st = ee_goal_->set(cur_eepos);
-	    if (! st) { return st; } 
-	  }
-	  else { forward_ = false; }
-	}
-	else {
-	  if (cur_row_ > 0) {
-	    --cur_row_;
-	    for(size_t jj(0); jj<ee_num_; ++jj) {
-	      cur_eepos[jj] = ee_pos_[ee_num_*cur_row_+jj];
-	    }
-	    cur_eepos[2] = zoffset_ + zamp_* cos(M_PI * cur_row_ * ee_num_/ee_pos_.rows());
-	    st = ee_goal_->set(cur_eepos);
-	    if (! st) { return st; } 
-	  }
-	  else { forward_ = true; }
-	}
-      }
       break;
-      
     case STATE_ATTACHED:
-      cur_eepos = Vector::Zero(ee_num_);
-      for(int ii=0; ii<ee_num_; ii++) {
-	cur_eepos[ii] = ee_pos_[ee_num_*cur_row_+ii];
-      }
-      
-      delta = cur_eepos - ee_surf_task_->getActual();
+      delta = cur_eesurf - ee_surf_task_->getActual();
       constraint = model.getConstraint();
       if (constraint) {
 	jspace::State fullState(model.getNDOF(),model.getNDOF(),6);
@@ -216,51 +188,60 @@ namespace uta_opspace {
       else {
 	v_delta = ee_surf_task_->getJacobian()*model.getState().velocity_;
       }
-      
-      if (delta.norm() < threshold_ && v_delta.norm() < vel_threshold_) {
-	if(forward_) {
-	  if (cur_row_ < (ee_pos_.rows()/ee_num_)-1) {
-	    ++cur_row_;
-	    for(size_t jj(0); jj<ee_num_; ++jj) {
-	      cur_eepos[jj] = ee_pos_[ee_num_*cur_row_+jj];
-	    }
-	    st = ee_surf_goal_->set(cur_eepos);
-	    if (! st) { return st; } 
-	  }
-	  else { forward_ = false; }
-	}
-	else {
-	  if (cur_row_ > 0) {
-	    --cur_row_;
-	    for(size_t jj(0); jj<ee_num_; ++jj) {
-	      cur_eepos[jj] = ee_pos_[ee_num_*cur_row_+jj];
-	    }
-	    st = ee_surf_goal_->set(cur_eepos);
-	    if (! st) { return st; } 
-	  }
-	  else { forward_ = true; }
-	}
-      }
       break;
-      
     }
- 
-      return st;
-    }
-    
-    Skill::task_table_t const * AttachSurface::
-      getTaskTable()
-    {
-      switch(state_) {
-      case STATE_NORMAL:
-	return &normal_task_table_;
-      case STATE_ATTACHED:
-	return &normal_task_table_;
+
+    if (delta.norm() < threshold_ && v_delta.norm() < vel_threshold_) {
+      if(forward_) {
+	if (cur_row_ < (ee_pos_.rows()/ee_num_)-1) {
+	  ++cur_row_;
+	  for(size_t jj(0); jj<ee_num_; ++jj) {
+	    cur_eepos[jj] = ee_pos_[ee_num_*cur_row_+jj];
+	    cur_eesurf[jj] = ee_pos_[ee_num_*cur_row_+jj];
+	  }
+	  cur_eepos[2] = zoffset_ + zamp_* cos(M_PI * cur_row_ * ee_num_/ee_pos_.rows());
+	  st = ee_goal_->set(cur_eepos);
+	  if (! st) { return st; } 
+	  st = ee_surf_goal_->set(cur_eesurf);
+	  if (! st) { return st; } 
+	}
+	else { forward_ = false; }
       }
-      return 0;
+      else {
+	if (cur_row_ > 0) {
+	  --cur_row_;
+	  for(size_t jj(0); jj<ee_num_; ++jj) {
+	    cur_eepos[jj] = ee_pos_[ee_num_*cur_row_+jj];
+	    cur_eesurf[jj] = ee_pos_[ee_num_*cur_row_+jj];
+	  }
+	  cur_eepos[2] = zoffset_ + zamp_* cos(M_PI * cur_row_ * ee_num_/ee_pos_.rows());
+	  st = ee_goal_->set(cur_eepos);
+	  if (! st) { return st; } 
+	  st = ee_surf_goal_->set(cur_eesurf);
+	  if (! st) { return st; } 
+	}
+	else { forward_ = true; }
+      }
     }
     
     
+    
+    return st;
+  }
+  
+  Skill::task_table_t const * AttachSurface::
+  getTaskTable()
+  {
+    switch(state_) {
+    case STATE_NORMAL:
+      return &normal_task_table_;
+    case STATE_ATTACHED:
+      return &attached_task_table_;
+    }
+    return 0;
+  }
+  
+  
   Status AttachSurface::
       checkJStarSV(Task const * task, Vector const & sv)
     {
@@ -281,7 +262,7 @@ namespace uta_opspace {
       std::string const & title,
       std::string const & prefix) const
   {
-    Skill::dbg(os,title,prefix);
+    //Skill::dbg(os,title,prefix);
     switch (state_) {
     case STATE_ATTACHED:
       for (size_t ii(0); ii < attached_task_table_.size(); ++ii) {
