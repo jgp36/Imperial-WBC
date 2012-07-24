@@ -827,6 +827,7 @@ public:
   virtual void dbg(std::ostream & os,
 		   std::string const & title,
 		   std::string const & prefix) const;
+  double evalPos(Model const & model, Vector const & point);
   
 protected:
   virtual taoDNode const * updateActual(Model const & model);
@@ -897,6 +898,7 @@ public:
   virtual void dbg(std::ostream & os,
 		   std::string const & title,
 		   std::string const & prefix) const;
+  void setAcc(Vector acc);
   
 protected:
   virtual taoDNode const * updateActual(Model const & model);
@@ -913,6 +915,9 @@ protected:
   double xddot;
   double yddot;
   double zddot;
+  //for enabling/disabling ff aspects
+  Vector ffacc_;
+  Vector ffvel_;
 };
 
 

@@ -12,6 +12,7 @@
 #include <uta_opspace/RigidTf.hpp>
 #include <uta_opspace/SurfaceMotion.hpp>
 #include <uta_opspace/SurfaceOriMotion.hpp>
+#include <uta_opspace/AttachSurface.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <err.h>
 #include <signal.h>
@@ -266,6 +267,7 @@ int main(int argc, char ** argv)
   Factory::addSkillType<uta_opspace::RigidTf>("uta_opspace::RigidTf");
   Factory::addSkillType<uta_opspace::SurfaceMotion>("uta_opspace::SurfaceMotion");
   Factory::addSkillType<uta_opspace::SurfaceOriMotion>("uta_opspace::SurfaceOriMotion");
+  Factory::addSkillType<uta_opspace::AttachSurface>("uta_opspace::AttachSurface");
   
   
   ros::init(argc, argv, "wbc_stb_servo", ros::init_options::NoSigintHandler);

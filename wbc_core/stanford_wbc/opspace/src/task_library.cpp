@@ -2942,8 +2942,27 @@ namespace opspace {
     }
     return end_effector_node_;
   }
-
-
+  
+  double TestImplicitSurfaceTask::
+  evalPos(Model const & model, Vector const & point) {
+    double f = T_;
+    double r, xc, yc, zc;
+    
+    for (size_t ii=0; ii < model.getState().camData_.rows();++ii) {
+      xc = model.getState().camData_(ii,0);
+      yc = model.getState().camData_(ii,1);
+      zc = model.getState().camData_(ii,2);
+      
+      r = sqrt(pow(point[0]-xc,2)+pow(point[1]-yc,2)+pow(point[2]-zc,2));
+      if (r < R_) {
+	f -= pow(1-r/R_,6)*(35*pow(r/R_,2)+18*r/R_+3);
+      }
+    }
+    return f;
+    
+  } 
+  
+  
  TestKnownImplicitSurfaceTask::
   TestKnownImplicitSurfaceTask(std::string const & name)
     : Task(name),
@@ -3234,6 +3253,8 @@ TestOriSurfaceTask::
     declareParameter("kd", &kd_);
     declareParameter("R", &R_);
     declareParameter("T", &T_);
+    declareParameter("ffacc", &ffacc_);
+    declareParameter("ffvel", &ffvel_);
   }
 
 
@@ -3278,7 +3299,7 @@ Status TestOriSurfaceTask::
     error(1) = -(ngradf(0,0)*actual_(2) - ngradf(0,2)*actual_(0));
     error(2) = ngradf(0,0)*actual_(1) - ngradf(0,1)*actual_(0);
 
-    command_ = alpha - kp_.cwise() * error + kd_.cwise()*(w - vel);
+    command_ = ffacc_.cwise() * alpha - kp_.cwise() * error + kd_.cwise()*( ffvel_.cwise() * w - vel);
 
     Status ok;
     return ok;
@@ -3388,6 +3409,12 @@ taoDNode const * TestOriSurfaceTask::
       
     }
     return end_effector_node_;
+  }
+
+void TestOriSurfaceTask::setAcc(Vector acc) {
+    xddot = acc[0];
+    yddot = acc[1];
+    zddot = acc[2];
   }
 
 }

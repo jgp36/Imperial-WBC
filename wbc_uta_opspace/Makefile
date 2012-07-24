@@ -307,6 +307,21 @@ wbc_uta_opspace/fast:
 .PHONY : wbc_uta_opspace/fast
 
 # target to build an object file
+uta_opspace/AttachSurface.o:
+	$(MAKE) -f CMakeFiles/wbc_uta_opspace.dir/build.make CMakeFiles/wbc_uta_opspace.dir/uta_opspace/AttachSurface.o
+.PHONY : uta_opspace/AttachSurface.o
+
+# target to preprocess a source file
+uta_opspace/AttachSurface.i:
+	$(MAKE) -f CMakeFiles/wbc_uta_opspace.dir/build.make CMakeFiles/wbc_uta_opspace.dir/uta_opspace/AttachSurface.i
+.PHONY : uta_opspace/AttachSurface.i
+
+# target to generate assembly for a file
+uta_opspace/AttachSurface.s:
+	$(MAKE) -f CMakeFiles/wbc_uta_opspace.dir/build.make CMakeFiles/wbc_uta_opspace.dir/uta_opspace/AttachSurface.s
+.PHONY : uta_opspace/AttachSurface.s
+
+# target to build an object file
 uta_opspace/BaseMultiPos.o:
 	$(MAKE) -f CMakeFiles/wbc_uta_opspace.dir/build.make CMakeFiles/wbc_uta_opspace.dir/uta_opspace/BaseMultiPos.o
 .PHONY : uta_opspace/BaseMultiPos.o
@@ -335,6 +350,21 @@ uta_opspace/CartMultiPos.i:
 uta_opspace/CartMultiPos.s:
 	$(MAKE) -f CMakeFiles/wbc_uta_opspace.dir/build.make CMakeFiles/wbc_uta_opspace.dir/uta_opspace/CartMultiPos.s
 .PHONY : uta_opspace/CartMultiPos.s
+
+# target to build an object file
+uta_opspace/ControllerIF.o:
+	$(MAKE) -f CMakeFiles/wbc_uta_opspace.dir/build.make CMakeFiles/wbc_uta_opspace.dir/uta_opspace/ControllerIF.o
+.PHONY : uta_opspace/ControllerIF.o
+
+# target to preprocess a source file
+uta_opspace/ControllerIF.i:
+	$(MAKE) -f CMakeFiles/wbc_uta_opspace.dir/build.make CMakeFiles/wbc_uta_opspace.dir/uta_opspace/ControllerIF.i
+.PHONY : uta_opspace/ControllerIF.i
+
+# target to generate assembly for a file
+uta_opspace/ControllerIF.s:
+	$(MAKE) -f CMakeFiles/wbc_uta_opspace.dir/build.make CMakeFiles/wbc_uta_opspace.dir/uta_opspace/ControllerIF.s
+.PHONY : uta_opspace/ControllerIF.s
 
 # target to build an object file
 uta_opspace/ControllerNG.o:
@@ -510,12 +540,18 @@ help:
 	@echo "... test-results-run"
 	@echo "... tests"
 	@echo "... wbc_uta_opspace"
+	@echo "... uta_opspace/AttachSurface.o"
+	@echo "... uta_opspace/AttachSurface.i"
+	@echo "... uta_opspace/AttachSurface.s"
 	@echo "... uta_opspace/BaseMultiPos.o"
 	@echo "... uta_opspace/BaseMultiPos.i"
 	@echo "... uta_opspace/BaseMultiPos.s"
 	@echo "... uta_opspace/CartMultiPos.o"
 	@echo "... uta_opspace/CartMultiPos.i"
 	@echo "... uta_opspace/CartMultiPos.s"
+	@echo "... uta_opspace/ControllerIF.o"
+	@echo "... uta_opspace/ControllerIF.i"
+	@echo "... uta_opspace/ControllerIF.s"
 	@echo "... uta_opspace/ControllerNG.o"
 	@echo "... uta_opspace/ControllerNG.i"
 	@echo "... uta_opspace/ControllerNG.s"

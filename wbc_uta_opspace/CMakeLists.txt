@@ -19,6 +19,7 @@ rosbuild_add_library (wbc_uta_opspace
   uta_opspace/strutil.cpp
   uta_opspace/ControllerNG.cpp
   uta_opspace/ControllerVel.cpp
+  uta_opspace/ControllerIF.cpp
   uta_opspace/HelloGoodbyeSkill.cpp
   uta_opspace/DelayHistogram.cpp
   uta_opspace/TaskOriPostureSkill.cpp
@@ -30,4 +31,5 @@ rosbuild_add_library (wbc_uta_opspace
   uta_opspace/RigidTf.cpp
   uta_opspace/SurfaceMotion.cpp
   uta_opspace/SurfaceOriMotion.cpp
+  uta_opspace/AttachSurface.cpp
   )
