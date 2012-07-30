@@ -4,7 +4,6 @@
 #include <wbc_stb/udp_osi.h>
 #include <wbc_stb/cs8c_interface.h>
 #include <wbc_stb/ndtypes.h>
-#include <wbc_stb/vis_interface.h>
 
 int main(int argc, char** argv) {
   ros::init(argc, argv, "wbc_fakecamera");
@@ -39,7 +38,6 @@ int main(int argc, char** argv) {
     p3dData[4].y = 0;    
     p3dData[4].z = 55;
   int bytes = 0;
-  robotinfo visinfo;
   int count = 1;
   while(1) {
     

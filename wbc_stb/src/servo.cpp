@@ -20,7 +20,7 @@
 #include <wbc_stb/udp_osi.h>
 #include <wbc_stb/cs8c_interface.h>
 #include <wbc_stb/ndtypes.h>
-#include <wbc_stb/vis_interface.h>
+#include <wbc_stb/visinfo.h>
 
 using namespace wbc_stb;
 using namespace opspace;
@@ -332,7 +332,6 @@ int main(int argc, char ** argv)
   //UDP camera- with option of no camera
   Position3d rawCamData[10];
   jspace::Matrix camData;
-  robotinfo visinfo;
 
   //EDIT ME to actual camera address
   char local_cam_port [10];
@@ -357,6 +356,12 @@ int main(int argc, char ** argv)
     state.camData_ = temp.transpose();
     cout <<"Recieved initial camera data\n";
   }  
+
+
+  //Visualization
+  visinfo info;
+  UdpOSI visUDP( "57860", const_cast<char*>(CS8C_IPADDR), "50000", 0);
+  
 
   int status = servo.init(state);
   if (0!= status) {
@@ -420,22 +425,33 @@ int main(int argc, char ** argv)
       }
       Matrix temp(R * camData.transpose() + d*Matrix::Ones(1,bytes/sizeof(Position3d)));
       state.camData_ = temp.transpose();
-
-      //Camera out
-      for (size_t ii(0); ii<6 ; ++ii) {
-	visinfo.position[ii] = state.position_[ii];
-      }
-      visinfo.R = 0;
-      visinfo.T = 0;
-      Skill::task_table_t const * tasks(servo.skill->getTaskTable());
-      RealParameter* R_ = dynamic_cast<RealParameter*>((*tasks)[0]->lookupParameter("R"));
-      RealParameter* T_ = dynamic_cast<RealParameter*>((*tasks)[0]->lookupParameter("T"));
-      if (R_ && T_) {
-	visinfo.R = *(R_->getReal());
-	visinfo.T = *(T_->getReal());
-      }
-      bytes = cameraUDP.sendPacket((char*)&visinfo, sizeof(visinfo));
     }  
+
+    //Vis out
+    for (size_t ii(0); ii<6 ; ++ii) {
+      info.q[ii] = state.position_[ii];
+    }
+    Skill::task_table_t const * tasks(servo.skill->getTaskTable());
+    info.R[0] = 0.1;
+    info.T[0] = 0.4;//No longer automatic-> should not be manual
+    if (cam) {
+      for (size_t ii(0); ii < state.camData_.rows(); ++ii) {
+	for (size_t jj(0); jj < state.camData_.cols(); ++jj) {
+	  info.sp[ii][jj] = state.camData_(ii,jj);
+	}
+      }
+    }
+
+    info.eedes[0] = 0.0;
+    info.eedes[1] = 0.0;
+    info.eedes[2] = 0.0;
+    
+    info.cp[0] = 0.0;
+    info.cp[1] = 0.0;
+    info.cp[2] = 0.0;
+
+
+    bytes = visUDP.sendPacket((char*)&info, sizeof(info));
 
     status = servo.update(state, command);
     if (0 != status) {
@@ -443,6 +459,7 @@ int main(int argc, char ** argv)
       servo.cleanup();
       return 0;
     }
+
 
     ros::Time t1(ros::Time::now());
     if (verbose) {
