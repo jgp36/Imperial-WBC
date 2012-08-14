@@ -1,0 +1,19 @@
+<package>
+  <description brief="wbc_fri">
+
+     wbc_fri
+
+  </description>
+  <author>Josh Petersen</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/wbc_fri</url>
+  <depend package="roscpp"/>
+  <depend package="std_msgs"/>
+  <depend package="sensor_msgs"/>
+  <depend package="motion_control_msgs"/>
+  <depend package="wbc_uta_opspace"/>
+
+</package>
+
+
