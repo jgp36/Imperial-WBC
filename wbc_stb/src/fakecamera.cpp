@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
     p3dData[4].z = 55;
   int bytes = 0;
   int count = 1;
-  while(1) {
+  while(ros::ok()) {
     
     bytes = camUDP.sendPacket((char*)p3dData, sizeof(p3dData));
     if (bytes != 0 ) {

@@ -77,7 +77,7 @@ rosbuild_add_library (wbc_core
   stanford_wbc/jspace/jspace/test/util.cpp
   stanford_wbc/jspace/jspace/test/sai_brep.cpp
   stanford_wbc/jspace/jspace/test/sai_brep_parser.cpp
-  #stanford_wbc/jspace/jspace/test/model_library.cpp
+  stanford_wbc/jspace/jspace/test/model_library.cpp
   stanford_wbc/jspace/jspace/test/sai_util.cpp
   stanford_wbc/jspace/jspace/tao_dump.cpp
 

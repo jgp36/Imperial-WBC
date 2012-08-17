@@ -80,7 +80,7 @@ done
 unset _LOOP_SETUP_FILE
 unset _SETUPFILES_ROSINSTALL
 
-export ROS_PACKAGE_PATH=$_ROS_PACKAGE_PATH_ROSINSTALL:~/whole_body_control
+export ROS_PACKAGE_PATH=$_ROS_PACKAGE_PATH_ROSINSTALL:~/whole_body_control:~/motion_control
 unset _ROS_PACKAGE_PATH_ROSINSTALL
 
 # using ROS_ROOT now being in ROS_PACKAGE_PATH

@@ -555,21 +555,21 @@ namespace jspace {
       J1.coeffRef(5, 0) = 1;
       
       J2 = Eigen::MatrixXd::Zero(6, 4);
-      J2.block(0, 0, 3, 1) = z1.cross(o2 - o1);
+      J2.block(0, 0, 3, 1) = z1.cross(Eigen::Vector3d(o2 - o1));
       J2.block(3, 0, 3, 1) = z1;
       J2.block(3, 1, 3, 1) = z2;
       
       J3 = Eigen::MatrixXd::Zero(6, 4);
-      J3.block(0, 0, 3, 1) = z1.cross(o3 - o1);
+      J3.block(0, 0, 3, 1) = z1.cross(Eigen::Vector3d(o3 - o1));
       J3.block(3, 0, 3, 1) = z1;
-      J3.block(0, 1, 3, 1) = z2.cross(o3 - o2);
+      J3.block(0, 1, 3, 1) = z2.cross(Eigen::Vector3d(o3 - o2));
       J3.block(3, 1, 3, 1) = z2;
       J3.block(3, 2, 3, 1) = z3;
       
       J4 = Eigen::MatrixXd::Zero(6, 4);
-      J4.block(0, 0, 3, 1) = z1.cross(o4 - o1);
+      J4.block(0, 0, 3, 1) = z1.cross(Eigen::Vector3d(o4 - o1));
       J4.block(3, 0, 3, 1) = z1;
-      J4.block(0, 1, 3, 1) = z2.cross(o4 - o2);
+      J4.block(0, 1, 3, 1) = z2.cross(Eigen::Vector3d(o4 - o2));
       J4.block(3, 1, 3, 1) = z2;
       J4.block(3, 3, 3, 1) = z4;
     }

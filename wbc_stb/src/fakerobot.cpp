@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
 
   float dt = 0.0001;
 
-  while(1) {
+  while(ros::ok()) {
 
     //UDP robot out
     bytes = robotUDP.sendPacket((char*)&states, sizeof(states));

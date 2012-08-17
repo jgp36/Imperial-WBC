@@ -16,6 +16,8 @@ namespace uta_opspace {
   ControllerIF(std::string const & name)
     : Controller(name),
       fallback_(false),
+      a_set(false),
+      g_set(false),
       loglen_(-1),
       logsubsample_(-1),
       logprefix_(""),
@@ -151,13 +153,23 @@ namespace uta_opspace {
     
 
     Matrix ainv;
-    if ( ! model.getInverseMassInertia(ainv)) {
-      return Status(false, "failed to retrieve inverse mass inertia");
+    if (!a_set) {
+      if ( ! model.getInverseMassInertia(ainv)) {
+	return Status(false, "failed to retrieve inverse mass inertia");
+      }
+    }
+    else {
+      ainv = A_.inverse();
     }
 
     Vector grav;
-    if ( ! model.getGravity(grav)) {
-      return Status(false, "failed to retrieve gravity torques");
+    if (!g_set) {
+      if ( ! model.getGravity(grav)) {
+	return Status(false, "failed to retrieve gravity torques");
+      }
+    }
+    else {
+      grav = g_;
     }
 
     jspace::Constraint * constraint = model.getConstraint();
@@ -473,6 +485,18 @@ namespace uta_opspace {
       }
       logcount_ = -1;
     }
+  }
+
+  void ControllerIF::
+  setAmatrix(Matrix A) {
+    A_ = A;
+    a_set = true;
+  }
+
+  void ControllerIF::
+  setgrav(Vector g) {
+    g_ = g;
+    g_set = true;
   }
   
 }

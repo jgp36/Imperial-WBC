@@ -1,3 +1,4 @@
+#include <ros/ros.h>
 #include <wbc_stb/udp_osi.h>
 #include <wbc_stb/cs8c_interface.h>
 #include <wbc_stb/ndtypes.h>
@@ -8,6 +9,9 @@
 using namespace std;
 
 int main(int argc, char** argv) {
+
+  ros::init(argc, argv, "wbc_cameraTest");
+  ros::NodeHandle node("~");
 
   Position3d rawCamData[10];
   robotinfo visinfo;
@@ -31,7 +35,7 @@ int main(int argc, char** argv) {
   }
   cout <<"Recieved initial camera data\n";
 
-  while(1) {
+  while(ros::ok()) {
     bytes = cameraUDP.recvPacket((char*)rawCamData, sizeof(rawCamData));
     if (bytes <1) {
       fprintf(stderr,"Error: no camera data recieved");

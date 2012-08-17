@@ -42,14 +42,16 @@ namespace uta_opspace {
   ControllerNG(std::string const & name)
     : Controller(name),
       fallback_(false),
-      /*loglen_(-1),
+      a_set(false),
+      g_set(false),
+      loglen_(-1),
       logsubsample_(-1),
       logprefix_(""),
-      logcount_(-1)*/
-      loglen_(1000),
+      logcount_(-1)
+      /*loglen_(1000),
       logsubsample_(1),
       logprefix_("Ramp_Experiment"),
-      logcount_(0)
+      logcount_(0)*/
   {
     declareParameter("loglen", &loglen_, PARAMETER_FLAG_NOLOG);
     declareParameter("logsubsample", &logsubsample_, PARAMETER_FLAG_NOLOG);
@@ -177,17 +179,27 @@ namespace uta_opspace {
     
 
     Matrix ainv;
-    if ( ! model.getInverseMassInertia(ainv)) {
-      return Status(false, "failed to retrieve inverse mass inertia");
+    if (!a_set) {
+      if ( ! model.getInverseMassInertia(ainv)) {
+	return Status(false, "failed to retrieve inverse mass inertia");
+      }
     }
-
+    else {
+      ainv = A_.inverse();
+    }
+    
     Vector grav;
-    if ( ! model.getGravity(grav)) {
-      return Status(false, "failed to retrieve gravity torques");
+    if (!g_set) {
+      if ( ! model.getGravity(grav)) {
+	return Status(false, "failed to retrieve gravity torques");
+      }
     }
-
+    else {
+      grav = g_;
+    }
+    
     jspace::Constraint * constraint = model.getConstraint();
-
+    
     if (constraint) {
       if(!constraint->updateJc(model)) {
 	return Status(false, "failed to update Jc");
@@ -406,6 +418,18 @@ namespace uta_opspace {
       }
       logcount_ = -1;
     }
+  }
+
+  void ControllerNG::
+  setAmatrix(Matrix A) {
+    A_ = A;
+    a_set = true;
+  }
+
+  void ControllerNG::
+  setgrav(Vector g) {
+    g_ = g;
+    g_set = true;
   }
   
 }

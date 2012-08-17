@@ -16,6 +16,7 @@
 #include <boost/scoped_ptr.hpp>
 #include <err.h>
 #include <signal.h>
+#include <wbc_fri/vel_est.h>
 
 using namespace wbc_fri;
 using namespace opspace;
@@ -57,25 +58,27 @@ static shared_ptr<opspace::ReflectionRegistry> registry;
 static shared_ptr<ParamCallbacks> param_cbs;
 static shared_ptr<ControllerNG> controller;
 static jspace::State state(7, 7, 6);
+static std::vector<vel_est*> vest;
 
 void stateCallback(const wbc_fri::FriJointState::ConstPtr& msg) {
   //update State
   jspace::Matrix A(jspace::Matrix::Zero(7,7));
-  jspace::Vector g(jspace::Vector::Zero(7));
 
+  double t = msg->header.stamp.toSec();
   for (size_t ii(0); ii<7; ++ii) {
 	state.position_[ii] = msg->msrJntPos[ii];
-	//state.velocity_[ii] = msg->velocity[ii];
-	state.velocity_[ii] = 0; //No fri measured joint velocity............
-	g[ii] = msg->gravity[ii];
+	double pos = state.position_[ii];
+	if (vest.size() != 7) {
+	  vest.push_back(new vel_est());
+	  vest[ii]->init(0.01,0.05,100,pos,t);
+	}
+	state.velocity_[ii] = vest[ii]->update(pos,t);
 	for (size_t jj(0); jj<7; ++jj) {
 		A(ii,jj) = msg->mass[7*ii+jj];
 	}
   }
 
   controller->setAmatrix(A);
-  controller->setgrav(g);
-
 }
 
 static void usage(int ecode, std::string msg)

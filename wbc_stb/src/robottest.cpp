@@ -46,7 +46,7 @@ int main(int argc, char** argv) {
     std::cout << "J" << ii << " position: " << robotFb.jntPos[ii] << "\n";    
     std::cout << "J" << ii << " velocity: " << robotFb.jntVel[ii] << "\n";
   }
-  while(1) {
+  while(ros::ok()) {
 
    //UDP robot out
     robotCmd.pktMirror = robotFb.pktNo;

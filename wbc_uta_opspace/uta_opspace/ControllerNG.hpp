@@ -63,6 +63,10 @@ namespace uta_opspace {
     inline Vector const & getActual() const { return actual_; }
     
     void qhlog(Skill & skill, long long timestamp);
+
+    void setAmatrix(Matrix A);
+
+    void setgrav(Vector g);
     
     
   protected:
@@ -93,6 +97,12 @@ namespace uta_opspace {
 
     Vector fullJpos_;
     Vector fullJvel_;
+
+    Matrix A_;
+    bool a_set;
+    Vector g_;
+    bool g_set;
+
   };
 
 }
