@@ -67,7 +67,10 @@ namespace uta_opspace {
     void setAmatrix(Matrix A);
 
     void setgrav(Vector g);
-    
+
+    inline Matrix const & getlstar() const { return lstar_; }
+
+    inline Matrix const & getA() const { return A_; }
     
   protected:
     boost::shared_ptr<Task> fallback_task_;
@@ -102,6 +105,8 @@ namespace uta_opspace {
     bool a_set;
     Vector g_;
     bool g_set;
+
+    Matrix lstar_;
 
   };
 

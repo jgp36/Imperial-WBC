@@ -8,7 +8,7 @@ default_target: all
 #=============================================================================
 # Special targets provided by cmake.
 
-# Disable implicit rules so canonical targets will work.
+# Disable implicit rules so canoncical targets will work.
 .SUFFIXES:
 
 # Remove some rules from gmake that .SUFFIXES does not remove.
@@ -42,10 +42,10 @@ RM = /usr/bin/cmake -E remove -f
 CMAKE_EDIT_COMMAND = /usr/bin/ccmake
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/josh/whole_body_control/wbc_uta_opspace
+CMAKE_SOURCE_DIR = /home/lwr/Development/ros_workspace/Josh/wbc_uta_opspace
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/josh/whole_body_control/wbc_uta_opspace
+CMAKE_BINARY_DIR = /home/lwr/Development/ros_workspace/Josh/wbc_uta_opspace
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -72,9 +72,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/josh/whole_body_control/wbc_uta_opspace/CMakeFiles /home/josh/whole_body_control/wbc_uta_opspace/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/lwr/Development/ros_workspace/Josh/wbc_uta_opspace/CMakeFiles /home/lwr/Development/ros_workspace/Josh/wbc_uta_opspace/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/josh/whole_body_control/wbc_uta_opspace/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/lwr/Development/ros_workspace/Josh/wbc_uta_opspace/CMakeFiles 0
 .PHONY : all
 
 # The main clean target

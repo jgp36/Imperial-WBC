@@ -20,3 +20,6 @@ rosbuild_add_library(wbc_fri
 
 rosbuild_add_executable (servo src/servo.cpp)
 target_link_libraries(servo wbc_fri)
+
+rosbuild_add_executable (comtest src/comtest.cpp)
+target_link_libraries(comtest wbc_fri)

@@ -51,8 +51,7 @@ namespace jspace {
       }
       return;
     }
-    
-    Eigen::SVD<Matrix> svd(matrix);
+    Eigen::JacobiSVD<Matrix> svd(matrix, Eigen::ComputeFullU | Eigen::ComputeFullV );
     // not sure if we need to svd.sort()... probably not
     int const nrows(svd.singularValues().rows());
     Matrix invS;

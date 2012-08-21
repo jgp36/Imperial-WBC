@@ -1,9 +1,10 @@
 #include <wbc_fri/rt_util.h>
 
 #include "ros/ros.h"
-#include <wbc_fri/FriJointState.h>
+#include <sensor_msgs/JointState.h>
 #include <motion_control_msgs/JointEfforts.h>
 #include <wbc_fri/FriJointImpedance.h>
+#include <wbc_fri/MassMatrix.h>
 #include <jspace/test/sai_util.hpp>
 #include <opspace/Skill.hpp>
 #include <opspace/Factory.hpp>
@@ -13,10 +14,11 @@
 #include <uta_opspace/SurfaceMotion.hpp>
 #include <uta_opspace/SurfaceOriMotion.hpp>
 #include <uta_opspace/AttachSurface.hpp>
+#include <uta_opspace/JointMultiPos.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <err.h>
 #include <signal.h>
-#include <wbc_fri/vel_est.h>
+//#include <wbc_fri/vel_est.h>
 
 using namespace wbc_fri;
 using namespace opspace;
@@ -25,6 +27,7 @@ using namespace uta_opspace;
 using namespace boost;
 using namespace std;
 using namespace motion_control_msgs;
+using namespace sensor_msgs;
 
 static char const * opspace_fallback_str = 
   "- tasks:\n"
@@ -58,28 +61,43 @@ static shared_ptr<opspace::ReflectionRegistry> registry;
 static shared_ptr<ParamCallbacks> param_cbs;
 static shared_ptr<ControllerNG> controller;
 static jspace::State state(7, 7, 6);
-static std::vector<vel_est*> vest;
+//static std::vector<vel_est*> vest;
+static Vector pos_prev;
+static double t_prev;
 
-void stateCallback(const wbc_fri::FriJointState::ConstPtr& msg) {
+void stateCallback(const JointState::ConstPtr& msg) {
   //update State
-  jspace::Matrix A(jspace::Matrix::Zero(7,7));
-
   double t = msg->header.stamp.toSec();
   for (size_t ii(0); ii<7; ++ii) {
-	state.position_[ii] = msg->msrJntPos[ii];
-	double pos = state.position_[ii];
+	state.position_[ii] = msg->position[ii];
+	/*double pos = state.position_[ii];
 	if (vest.size() != 7) {
 	  vest.push_back(new vel_est());
-	  vest[ii]->init(0.01,0.05,100,pos,t);
+	  vest[ii]->init(2.6e-7,0.02,100,pos,t);
 	}
-	state.velocity_[ii] = vest[ii]->update(pos,t);
+	state.velocity_[ii] = vest[ii]->update(pos,t);*/
+	if (t_prev != 0) {
+		state.velocity_[ii] = (state.position_[ii]-pos_prev[ii])/(t-t_prev);
+	}
+	else {
+		state.velocity_[ii] = 0.0;
+	}
+  }
+   pos_prev = state.position_;
+   t_prev = t;
+}
+
+void massCallback(const MassMatrix::ConstPtr& msg) {
+  jspace::Matrix A(jspace::Matrix::Zero(7,7));
+  for (size_t ii(0); ii<7; ++ii) {
 	for (size_t jj(0); jj<7; ++jj) {
 		A(ii,jj) = msg->mass[7*ii+jj];
 	}
   }
-
   controller->setAmatrix(A);
 }
+
+
 
 static void usage(int ecode, std::string msg)
 {
@@ -246,15 +264,14 @@ namespace {
 	warnx("Servo::update(): not initialized\n");
 	return -1;
       }
-      
+
       model->update(state);
-      
+
       jspace::Status status(controller->computeCommand(*model, *skill, command));
       if ( ! status) {
 	warnx("Servo::update(): controller->computeCommand() failed: %s", status.errstr.c_str());
 	return -2;
       }
-      
       return 0;
     }
     
@@ -285,6 +302,7 @@ int main(int argc, char ** argv)
   Factory::addSkillType<uta_opspace::SurfaceMotion>("uta_opspace::SurfaceMotion");
   Factory::addSkillType<uta_opspace::SurfaceOriMotion>("uta_opspace::SurfaceOriMotion");
   Factory::addSkillType<uta_opspace::AttachSurface>("uta_opspace::AttachSurface");
+  Factory::addSkillType<uta_opspace::JointMultiPos>("uta_opspace::JointMultiPos");
   
   
   ros::init(argc, argv, "wbc_fri_servo", ros::init_options::NoSigintHandler);
@@ -292,6 +310,7 @@ int main(int argc, char ** argv)
   ros::NodeHandle node("~");
 
   jspace::Vector command(Vector::Zero(7));
+  pos_prev = Vector::Zero(7);
   //Need to setup the transform here
   //Should be changed to a parameter in TAO
   jspace::Matrix R(Matrix::Identity(3,3));
@@ -308,21 +327,20 @@ int main(int argc, char ** argv)
   param_cbs->init(node, registry, 1, 100);
 
   //Initial message
-  ros::Publisher torque_pub = node.advertise<JointEfforts>("JointEffortCommand", 1000);
-  ros::Publisher jointimp_pub = node.advertise<FriJointImpedance>("FriJointImpedance", 1000);
-  ros::Subscriber state_sub = node.subscribe("FriJointState", 1000, stateCallback);
+  ros::Publisher torque_pub = node.advertise<JointEfforts>("/JointEffortCommand", 1000);
+  ros::Publisher jointimp_pub = node.advertise<FriJointImpedance>("/FriJointImpedance", 1000);
+  ros::Subscriber state_sub = node.subscribe("/JointState", 1000, stateCallback);
+  ros::Subscriber mass_sub = node.subscribe("/MassMatrix", 1000, massCallback);
   JointEfforts torque_msg;
   FriJointImpedance jointimp_msg;
-  FriJointState state_msg;
 
   for (size_t ii(0); ii<7; ++ii) {
-	torque_msg.efforts[ii] = 0;
+	torque_msg.efforts.push_back(0.0);
 	jointimp_msg.stiffness[ii] = 0.0;
 	jointimp_msg.damping[ii] = 0.0;
   }
   torque_pub.publish(torque_msg);
   jointimp_pub.publish(jointimp_msg);
-  
 
 
 
@@ -417,6 +435,7 @@ int main(int argc, char ** argv)
 
     bytes = visUDP.sendPacket((char*)&info, sizeof(info));
      */
+
     status = servo.update(state, command);
     if (0 != status) {
       fprintf(stderr, "update callback returned %d\n", status);
@@ -425,11 +444,16 @@ int main(int argc, char ** argv)
     }
 
     for (size_t ii(0); ii<7; ++ii) {
-      torque_msg.efforts[ii] = command[ii];
+      if (isnan(command[ii])) {
+	torque_msg.efforts[ii] = 0;
+      }
+      else {
+          torque_msg.efforts[ii] = command[ii];
+      }
     }
 
     torque_pub.publish(torque_msg);
-
+    jointimp_pub.publish(jointimp_msg);
 
     ros::Time t1(ros::Time::now());
     if (verbose) {
@@ -440,6 +464,8 @@ int main(int argc, char ** argv)
 	cout << "--------------------------------------------------\n";
 	jspace::pretty_print(model->getState().position_, cout, "jpos", "  ");
 	jspace::pretty_print(controller->getCommand(), cout, "gamma", "  ");
+        //jspace::pretty_print(controller->getA(), cout, "A", "  ");
+        //jspace::pretty_print(controller->getlstar(), cout, "lstar", "  ");
       }
     }
     if (t1 - dump_t0 > dump_dt) {

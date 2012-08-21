@@ -39,6 +39,7 @@ update(double pos, double t) {
     tprev = ttemp;
   }
 
+  vel = (pos - pos_[1])/(t-t_[1]);
   return vel;
   
 }

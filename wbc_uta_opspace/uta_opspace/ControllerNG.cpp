@@ -187,12 +187,13 @@ namespace uta_opspace {
     else {
       ainv = A_.inverse();
     }
-    
     Vector grav;
     if (!g_set) {
       if ( ! model.getGravity(grav)) {
 	return Status(false, "failed to retrieve gravity torques");
       }
+      // TODO turn this back for gravity compensation. need to find model flag to do this
+      grav = Vector::Zero(model.getNDOF());
     }
     else {
       grav = g_;
@@ -248,7 +249,6 @@ namespace uta_opspace {
     size_t const n_minus_1(tasks->size() - 1);
     Matrix nstar(Matrix::Identity(model.getUnconstrainedNDOF(), model.getUnconstrainedNDOF()));
     int first_active_task_index(0); // because tasks can have empty Jacobian
-    
     for (size_t ii(0); ii < tasks->size(); ++ii) {
       
       Task const * task((*tasks)[ii]);
@@ -287,7 +287,7 @@ namespace uta_opspace {
 	// a task more than one in the hierarchy. This should not
 	// trigger a segfault, and/or it should be detected earlier, but
 	// this effect is a bit obscure for now.
-	sv_jstar = Eigen::SVD<Matrix>(jjt).singularValues();
+	sv_jstar = Eigen::JacobiSVD<Matrix>(jjt).singularValues();
       }
       
       st = skill.checkJStarSV(task, sv_jstar);
@@ -301,6 +301,8 @@ namespace uta_opspace {
       jspace::pseudoInverse(jstar * phi * jstar.transpose(),
 		    task->getSigmaThreshold(),
 		    lstar, 0);////&sv_lstar_[ii]);
+      lstar_ = lstar;
+
       Vector pstar;
       pstar = lstar * jstar * UNc * ainv * Nc.transpose()* grav;
 
@@ -342,7 +344,7 @@ namespace uta_opspace {
 	  }*/
       }
     }
-    
+
     if (tasks->size() <= first_active_task_index) {
       fallback_ = true;
       fallback_reason_ = "no active tasks";
