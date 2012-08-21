@@ -107,9 +107,9 @@
 		  <axis>z</axis>
 		  <type>r</type>
 		  <rot>1.0, 0.0, 0.0, -1.5708</rot>
-		  <pos>0.0, 0.0, 0.0</pos>
+		  <pos>0.0, 0.078, 0.0</pos>
 		  <mass>0.0001</mass>
-		  <inertia>0.0, 0.078, 0.0</inertia>
+		  <inertia>0.0, 0.0, 0.0</inertia>
 		  <com>0.0, 0.0, 0.0</com>
 		  <rotorInertia>0.0</rotorInertia>
 		  <gearRatio>0</gearRatio>

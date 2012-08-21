@@ -392,6 +392,21 @@ src/servo.s:
 .PHONY : src/servo.s
 
 # target to build an object file
+src/udp_osi.o:
+	$(MAKE) -f CMakeFiles/wbc_fri.dir/build.make CMakeFiles/wbc_fri.dir/src/udp_osi.o
+.PHONY : src/udp_osi.o
+
+# target to preprocess a source file
+src/udp_osi.i:
+	$(MAKE) -f CMakeFiles/wbc_fri.dir/build.make CMakeFiles/wbc_fri.dir/src/udp_osi.i
+.PHONY : src/udp_osi.i
+
+# target to generate assembly for a file
+src/udp_osi.s:
+	$(MAKE) -f CMakeFiles/wbc_fri.dir/build.make CMakeFiles/wbc_fri.dir/src/udp_osi.s
+.PHONY : src/udp_osi.s
+
+# target to build an object file
 src/vel_est.o:
 	$(MAKE) -f CMakeFiles/wbc_fri.dir/build.make CMakeFiles/wbc_fri.dir/src/vel_est.o
 .PHONY : src/vel_est.o
@@ -440,6 +455,9 @@ help:
 	@echo "... src/servo.o"
 	@echo "... src/servo.i"
 	@echo "... src/servo.s"
+	@echo "... src/udp_osi.o"
+	@echo "... src/udp_osi.i"
+	@echo "... src/udp_osi.s"
 	@echo "... src/vel_est.o"
 	@echo "... src/vel_est.i"
 	@echo "... src/vel_est.s"

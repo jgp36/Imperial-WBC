@@ -16,7 +16,8 @@ set (LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 rosbuild_genmsg()
 
 rosbuild_add_library(wbc_fri
-	src/vel_est.cpp)
+	src/vel_est.cpp
+        src/udp_osi.cxx)
 
 rosbuild_add_executable (servo src/servo.cpp)
 target_link_libraries(servo wbc_fri)

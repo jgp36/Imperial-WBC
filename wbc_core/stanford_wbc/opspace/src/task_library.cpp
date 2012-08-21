@@ -2918,7 +2918,7 @@ namespace opspace {
       double f = T_;
 
       Matrix gradf(Matrix::Zero(1,3));
-      for (size_t ii=0; ii < model.getState().camData_.rows();++ii) {
+      for (size_t ii(0); ii < model.getState().camData_.rows();++ii) {
 	xc = model.getState().camData_(ii,0);
 	yc = model.getState().camData_(ii,1);
 	zc = model.getState().camData_(ii,2);

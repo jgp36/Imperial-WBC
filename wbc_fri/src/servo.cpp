@@ -18,7 +18,10 @@
 #include <boost/scoped_ptr.hpp>
 #include <err.h>
 #include <signal.h>
-//#include <wbc_fri/vel_est.h>
+
+#include <wbc_fri/cs8c_interface.h>
+#include <wbc_fri/udp_osi.h>
+#include <wbc_fri/ndtypes.h>
 
 using namespace wbc_fri;
 using namespace opspace;
@@ -344,7 +347,7 @@ int main(int argc, char ** argv)
 
 
 
-  /* //UDP camera- with option of no camera
+  //UDP camera- with option of no camera
   Position3d rawCamData[10];
   jspace::Matrix camData;
 
@@ -354,6 +357,7 @@ int main(int argc, char ** argv)
   char cam_port [10];
   sprintf(cam_port, "%d", CS8C_PORT+2);
   UdpOSI cameraUDP(local_cam_port, "127.0.0.1", cam_port, 0);
+  int bytes =0;
   if (cam) {
     bytes = cameraUDP.recvPacket((char*)rawCamData, sizeof(rawCamData));
     if (bytes<1) {
@@ -372,7 +376,7 @@ int main(int argc, char ** argv)
     cout <<"Recieved initial camera data\n";
     }  
 
-
+  /*
   //Visualization
   visinfo info;
   UdpOSI visUDP( "57860", const_cast<char*>(CS8C_IPADDR), "50000", 0);*/
@@ -392,7 +396,7 @@ int main(int argc, char ** argv)
  //ros::Rate loop_rate(10);
   while (ros::ok()) {
 
-     /*    //UDP camera in and out
+    //UDP camera in and out
     if (cam) {
       bytes = cameraUDP.recvPacket((char*)rawCamData, sizeof(rawCamData));
       if (bytes <1) {
@@ -409,6 +413,7 @@ int main(int argc, char ** argv)
       state.camData_ = temp.transpose();
     }  
 
+    /*
     //Vis out
     for (size_t ii(0); ii<6 ; ++ii) {
       info.q[ii] = state.position_[ii];
@@ -464,8 +469,7 @@ int main(int argc, char ** argv)
 	cout << "--------------------------------------------------\n";
 	jspace::pretty_print(model->getState().position_, cout, "jpos", "  ");
 	jspace::pretty_print(controller->getCommand(), cout, "gamma", "  ");
-        //jspace::pretty_print(controller->getA(), cout, "A", "  ");
-        //jspace::pretty_print(controller->getlstar(), cout, "lstar", "  ");
+	jspace::pretty_print(model->getState().camData_, cout, "cam", "  ");
       }
     }
     if (t1 - dump_t0 > dump_dt) {
