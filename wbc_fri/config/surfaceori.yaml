@@ -1,0 +1,26 @@
+- tasks:
+  - type: opspace::TestNormalizedImplicitSurfaceTask
+    name: task
+    end_effector: 6
+    kp: [  10.0 ]
+    kd: [  30.0 ]
+    control_point: [ 0, 0, 0 ]
+    R: 0.1
+    T: 0.4
+  - type: opspace::TestOriSurfaceTask
+    name: task2
+    end_effector: 6
+    kp: [  45.0, 45.0, 45.0]
+    kd: [  10.0, 10.0, 10.0 ]
+    control_point: [ 0, 0, 0 ]
+    R: 0.1
+    T: 0.4
+    ffacc: [0.0, 0.0, 0.0]
+    ffvel: [0.0, 0.0, 0.0]
+
+- skills:
+  - type: opspace::TwoTaskSkill
+    name: threetask
+    slots:
+      task1: task
+      task2: task2
