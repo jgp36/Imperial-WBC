@@ -319,4 +319,68 @@ namespace opspace {
     return &task_table_;
   }
 
+  FourTaskSkill::
+  FourTaskSkill(std::string const & name)
+    : Skill(name)
+  {
+    slot1_ = declareSlot<Task>("task1");
+    slot2_ = declareSlot<Task>("task2");
+    slot3_ = declareSlot<Task>("task3");
+    slot4_ = declareSlot<Task>("task4");
+  }
+  
+  
+  Status FourTaskSkill::
+  init(Model const & model)
+  {
+    Status const st(Skill::init(model));
+    if ( ! st) {
+      return st;
+    }
+   if (task_table_.empty()) {
+      for (size_t ii(0); ii < slot1_->getNInstances(); ++ii) {
+	task_table_.push_back(slot1_->getInstance(ii).get());
+      }
+      for (size_t ii(0); ii < slot2_->getNInstances(); ++ii) {
+	task_table_.push_back(slot2_->getInstance(ii).get());
+      }
+      for (size_t ii(0); ii < slot3_->getNInstances(); ++ii) {
+	task_table_.push_back(slot3_->getInstance(ii).get());
+      }
+      for (size_t ii(0); ii < slot4_->getNInstances(); ++ii) {
+	task_table_.push_back(slot4_->getInstance(ii).get());
+      }
+    }
+
+    return st;
+  }
+  
+  
+  Status FourTaskSkill::
+  update(Model const & model)
+  {
+    Status st;
+    if ( task_table_.empty()) {
+      st.ok = false;
+      st.errstr = "empty task table, did you assign any? did you forget to init()?";
+    }
+    else {
+      for (size_t ii(0); ii < task_table_.size(); ++ii) {
+	st = task_table_[ii]->update(model);
+	if ( ! st) {
+	  return st;
+	}
+      }
+    }
+    return st;
+  }
+  
+  
+  Skill::task_table_t const * FourTaskSkill::
+  getTaskTable()
+  {
+    return &task_table_;
+  }
+
+
 }

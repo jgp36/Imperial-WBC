@@ -114,6 +114,24 @@ namespace opspace {
     boost::shared_ptr<TaskSlotAPI> slot3_;
   };
 
+  class FourTaskSkill
+    : public Skill
+  {
+  public:
+    FourTaskSkill(std::string const & name);
+    
+    virtual Status init(Model const & model);
+    virtual Status update(Model const & model);
+    virtual task_table_t const * getTaskTable();
+    
+  protected:
+    task_table_t task_table_;
+    boost::shared_ptr<TaskSlotAPI> slot1_;
+    boost::shared_ptr<TaskSlotAPI> slot2_;
+    boost::shared_ptr<TaskSlotAPI> slot3_;
+    boost::shared_ptr<TaskSlotAPI> slot4_;
+  };
+
 }
 
 #endif // OPSPACE_SKILL_LIBRARY_HPP

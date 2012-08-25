@@ -348,7 +348,7 @@ int main(int argc, char ** argv)
 
 
   //UDP camera- with option of no camera
-  Position3d rawCamData[10];
+  Position3d rawCamData[56];
   jspace::Matrix camData;
 
   //EDIT ME to actual camera address
@@ -469,7 +469,7 @@ int main(int argc, char ** argv)
 	cout << "--------------------------------------------------\n";
 	jspace::pretty_print(model->getState().position_, cout, "jpos", "  ");
 	jspace::pretty_print(controller->getCommand(), cout, "gamma", "  ");
-	jspace::pretty_print(model->getState().camData_, cout, "cam", "  ");
+	//jspace::pretty_print(model->getState().camData_, cout, "cam", "  ");
       }
     }
     if (t1 - dump_t0 > dump_dt) {

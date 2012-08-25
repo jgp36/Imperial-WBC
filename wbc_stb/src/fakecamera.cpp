@@ -15,40 +15,23 @@ int main(int argc, char** argv) {
   sprintf(cam_port, "%d", CLIENT_PORT+2);
   UdpOSI camUDP( local_port, "127.0.0.1", cam_port, 0);
 
-  int datapts = 9;
+  int datapts = 56;
   Position3d p3dData[datapts];
   /*for (size_t ii(0); ii< datapts; ++ii) {
     p3dData[ii].x = 47.5;
     p3dData[ii].y = 5;    
     p3dData[ii].z = 43.5;
   }*/
-    p3dData[0].x = 0.375*1e2;
-    p3dData[0].y = 0.0*1e2;    
-    p3dData[0].z = 1.0*1e2;
-    p3dData[1].x = 0.425*1e2;
-    p3dData[1].y = 0.0*1e2;    
-    p3dData[1].z = 1.0*1e2;
-    p3dData[2].x = 0.375*1e2;
-    p3dData[2].y = 0.05*1e2;    
-    p3dData[2].z = 1.0*1e2;
-    p3dData[3].x = 0.325*1e2;
-    p3dData[3].y = 0.05*1e2;    
-    p3dData[3].z = 1.00*1e2;
-    p3dData[4].x = 0.425*1e2;
-    p3dData[4].y = 0.05*1e2;    
-    p3dData[4].z = 1.00*1e2;
-    p3dData[5].x = 0.325*1e2;
-    p3dData[5].y = 0.0*1e2;    
-    p3dData[5].z = 1.00*1e2;
-    p3dData[6].x = 0.325*1e2;
-    p3dData[6].y = -0.05*1e2;    
-    p3dData[6].z = 1.00*1e2;
-    p3dData[7].x = 0.425*1e2;
-    p3dData[7].y = -0.05*1e2;    
-    p3dData[7].z = 1.00*1e2;
-    p3dData[8].x = 0.325*1e2;
-    p3dData[8].y = -0.05*1e2;    
-    p3dData[8].z = 1.00*1e2;
+
+    for (size_t ii(0); ii<8; ++ii) {
+        for (size_t jj(0); jj<7; ++jj) {
+           p3dData[ii*7+jj].x = (0.35+0.05*ii)*1e2;
+           p3dData[ii*7+jj].y = (-0.15+0.05*jj)*1e2;    
+           p3dData[ii*7+jj].z = (0.24+pow(0.35+0.05*ii-0.40,2))*1e2;
+       }
+    }
+
+
   int bytes = 0;
   int count = 1;
   while(ros::ok()) {

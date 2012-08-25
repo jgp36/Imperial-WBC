@@ -58,7 +58,7 @@ namespace uta_opspace {
       vel_threshold_ = 0.08;
     }
 
-    ee_goal_ = ee_task_->lookupParameter("goalpos", PARAMETER_TYPE_VECTOR);
+    ee_goal_ = ee_task_->lookupParameter("trjgoal", PARAMETER_TYPE_VECTOR);
 
     if ( ! ee_goal_) {
       st.ok = false;

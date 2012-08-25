@@ -920,6 +920,58 @@ protected:
   Vector ffvel_;
 };
 
+class TestNormalizedImplicitSurfaceTask
+  : public Task 
+{
+public:
+  explicit TestNormalizedImplicitSurfaceTask(std::string const & name);
+
+  virtual Status init(Model const & model);
+  virtual Status update(Model const & model);
+  virtual void dbg(std::ostream & os,
+		   std::string const & title,
+		   std::string const & prefix) const;
+  double evalPos(Model const & model, Vector const & point);
+  
+protected:
+  virtual taoDNode const * updateActual(Model const & model);
+  int end_effector_id_;
+  Vector control_point_;
+  mutable taoDNode const * end_effector_node_;
+  Vector kp_;
+  Vector kd_;
+  double R_;
+  double T_;
+};
+
+  class PlanarCartPosTrjTask
+    : public Task
+  {
+  public:
+    virtual ~PlanarCartPosTrjTask();
+    explicit PlanarCartPosTrjTask(std::string const & name);
+
+    virtual Status init(Model const & model);
+    virtual Status update(Model const & model);
+    virtual void dbg(std::ostream & os,
+		     std::string const & title,
+		     std::string const & prefix) const;
+
+  protected:
+    virtual taoDNode const * updateActual(Model const & model);
+    int end_effector_id_;
+    Vector kp_;
+    Vector kd_;
+    Vector control_point_;
+    mutable taoDNode const * end_effector_node_;
+    TypeIOTGCursor * cursor_;
+    double dt_seconds_;
+    Vector trjgoal_;
+    Vector maxacc_;
+    Vector maxvel_;
+
+  };
+
 
 }
 

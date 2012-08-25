@@ -28,8 +28,8 @@ namespace uta_opspace {
     
   protected:
     
-    TestImplicitSurfaceTask * surface_task_;
-    TestPureSelectCartPosTask * ee_task_;
+    TestNormalizedImplicitSurfaceTask * surface_task_;
+    PlanarCartPosTrjTask * ee_task_;
     PureJPosTask * posture_;
     task_table_t task_table_;
     

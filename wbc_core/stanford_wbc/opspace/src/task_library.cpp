@@ -1466,7 +1466,7 @@ namespace opspace {
     : Task(name),
       kp_(Vector::Zero(7)),
       kd_(Vector::Zero(7)),
-      goalpos_(Vector::Zero(6))
+      goalpos_(Vector::Zero(7))
   {
     declareParameter("kp", &kp_);
     declareParameter("kd", &kd_);
@@ -1507,7 +1507,7 @@ namespace opspace {
     command_ = kp_.cwise()*(goalpos_ - actual_) - kd_.cwise()*model.getState().velocity_;
 
     Status ok;
-    return ok;
+    return ok; 
   }
 
   void PureJPosTask::
@@ -3310,9 +3310,10 @@ Status TestOriSurfaceTask::
     if ( ! title.empty()) {
       os << title << "\n";
     }
-    os << prefix << "Vel Ori Surface Task: `" << instance_name_ << "'\n";
+    os << prefix << "Ori Surface Task: `" << instance_name_ << "'\n";
 
     pretty_print(actual_, os, prefix + "  actual", prefix + "    ");
+    pretty_print(ngradf,  os, prefix + "  desired", prefix + "    ");
     pretty_print(jacobian_, os, prefix + "  jacobian", prefix + "    ");
     pretty_print(command_, os, prefix + "  command", prefix + "    ");
   }
@@ -3416,5 +3417,321 @@ void TestOriSurfaceTask::setAcc(Vector acc) {
     yddot = acc[1];
     zddot = acc[2];
   }
+
+ TestNormalizedImplicitSurfaceTask::
+  TestNormalizedImplicitSurfaceTask(std::string const & name)
+    : Task(name),
+      end_effector_id_(-1),
+      control_point_(Vector::Zero(3)),
+      end_effector_node_(0),
+      kp_(Vector::Zero(2)),
+      kd_(Vector::Zero(2))
+  {
+    declareParameter("end_effector",  &end_effector_id_ );
+    declareParameter("control_point", &control_point_);
+    declareParameter("kp", &kp_);
+    declareParameter("kd", &kd_);
+    declareParameter("R", &R_);
+    declareParameter("T", &T_);
+  }
+
+  Status TestNormalizedImplicitSurfaceTask::
+  init(Model const & model) {
+    if (0 > end_effector_id_) {
+      return Status(false, "you did not (correctly) set end_effector_id");
+    }
+    if (3 != control_point_.rows()) {
+      return Status(false, "control_point needs to be three dimensional");
+    }
+    if (1 != kp_.rows()) {
+      return Status(false, "kp needs to be two dimensional");
+    }
+    if (1 != kd_.rows()) {
+      return Status(false, "kd needs to be two dimensional");
+    }
+
+    if (0 == updateActual(model)) {
+      return Status(false, "updateActual() failed, did you specify a valid end_effector_id?");
+    }
+    Status ok;
+    return ok;
+  }
+
+
+  Status TestNormalizedImplicitSurfaceTask::
+  update(Model const & model) {
+    end_effector_node_ = updateActual(model);
+    if ( ! end_effector_node_) {
+      return Status(false, "invalid end_effector");
+    }
+
+    Vector vel(jacobian_ * model.getFullState().velocity_);
+
+    command_ = kp_.cwise() * (-actual_) - kd_.cwise() * vel;
+
+    Status ok;
+    return ok;
+  }
+
+  void TestNormalizedImplicitSurfaceTask::
+  dbg(std::ostream & os,std::string const & title,std::string const & prefix) const {
+    if ( ! title.empty()) {
+      os << title << "\n";
+    }
+    os << prefix << "Normalized Implicit Surface Task: `" << instance_name_ << "'\n";
+
+    pretty_print(actual_, os, prefix + "  actual", prefix + "    ");
+    pretty_print(jacobian_, os, prefix + "  jacobian", prefix + "    ");
+    pretty_print(command_, os, prefix + "  command", prefix + "    ");
+  }
+
+  taoDNode const * TestNormalizedImplicitSurfaceTask::
+  updateActual(Model const & model) {
+    if ( ! end_effector_node_) {
+      end_effector_node_ = model.getNode(end_effector_id_);
+    }
+    if (end_effector_node_) {
+      jspace::Transform ee_transform;
+      model.computeGlobalFrame(end_effector_node_,
+			       control_point_[0],
+			       control_point_[1],
+			       control_point_[2],
+			       ee_transform);
+      
+      actual_ = Vector::Zero(1);
+
+      Vector eepos = ee_transform.translation();
+      double x = eepos(0);
+      double y = eepos(1);
+      double z = eepos(2);
+      double r, xc, yc, zc;
+      double f = T_;
+
+      Matrix gradf(Matrix::Zero(1,3));
+      for (size_t ii(0); ii < model.getState().camData_.rows();++ii) {
+	xc = model.getState().camData_(ii,0);
+	yc = model.getState().camData_(ii,1);
+	zc = model.getState().camData_(ii,2);
+
+	r = sqrt(pow(x-xc,2)+pow(y-yc,2)+pow(z-zc,2));
+	if (r < R_) {
+	  f -= pow(1-r/R_,6)*(35*pow(r/R_,2)+18*r/R_+3);
+	  gradf(0,0) = gradf(0,0) + ((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*(x-xc)/r;
+	  gradf(0,1) = gradf(0,1) + ((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*(y-yc)/r;
+	  gradf(0,2) = gradf(0,2) + ((56*r*pow(R_ - r,5)*(R_ + 5*r))/pow(R_,8))*(z-zc)/r;
+	}
+      }
+      actual_(0) = f;
+
+      Matrix Jfull;
+      if ( ! model.computeJacobian(end_effector_node_, x, y, z, Jfull)) {
+	return 0;
+      }
+      jacobian_ = gradf*Jfull.block(0,0,3,Jfull.cols());
+      /*if (gradf.norm() > 1e-4) {
+	jacobian_ =jacobian_/gradf.norm();
+      }*/
+      if (jacobian_.norm() > 1e-4) {
+	jacobian_ =jacobian_/jacobian_.norm();
+      }
+
+    }
+    return end_effector_node_;
+  }
+  
+  double TestNormalizedImplicitSurfaceTask::
+  evalPos(Model const & model, Vector const & point) {
+    double f = T_;
+    double r, xc, yc, zc;
+    
+    for (size_t ii=0; ii < model.getState().camData_.rows();++ii) {
+      xc = model.getState().camData_(ii,0);
+      yc = model.getState().camData_(ii,1);
+      zc = model.getState().camData_(ii,2);
+      
+      r = sqrt(pow(point[0]-xc,2)+pow(point[1]-yc,2)+pow(point[2]-zc,2));
+      if (r < R_) {
+	f -= pow(1-r/R_,6)*(35*pow(r/R_,2)+18*r/R_+3);
+      }
+    }
+    return f;
+    
+  } 
+
+PlanarCartPosTrjTask::
+  PlanarCartPosTrjTask(std::string const & name)
+    : Task(name),
+      end_effector_id_(-1),
+      kp_(Vector::Zero(3)),
+      kd_(Vector::Zero(3)),
+      control_point_(Vector::Zero(3)),
+      end_effector_node_(0),
+      cursor_(0),
+      dt_seconds_(-1)
+  {
+    declareParameter("end_effector", &end_effector_id_ );
+    declareParameter("kp", &kp_);
+    declareParameter("kd", &kd_);
+    declareParameter("control_point", &control_point_);
+    declareParameter("dt_seconds", &dt_seconds_);
+    declareParameter("trjgoal", &trjgoal_);
+    declareParameter("maxacc", &maxacc_);
+    declareParameter("maxvel", &maxvel_);
+  }
+
+  PlanarCartPosTrjTask::
+  ~PlanarCartPosTrjTask()
+  {
+    delete cursor_;
+  }
+
+  Status PlanarCartPosTrjTask::
+  init(Model const & model) {
+    if (0 > end_effector_id_) {
+      return Status(false, "you did not (correctly) set end_effector_id");
+    }
+    if (3 != control_point_.rows()) {
+      return Status(false, "control_point needs to be three dimensional");
+    }
+    
+    if (0 > dt_seconds_) {
+      return Status(false,"you did not (correctly) set dt_seconds");
+    }
+    
+    int const ndim(2);
+    if (ndim != maxacc_.rows()) {
+      if ((ndim != 1) && (1 == maxacc_.rows())) {
+	maxacc_ = maxacc_[0] * Vector::Ones(ndim);
+      }
+      else {
+	return Status(false, "invalid maxacc dimension");
+      }
+    }
+    
+    if (ndim != maxvel_.rows()) {
+      if ((ndim != 1) && (1 == maxvel_.rows())) {
+	maxvel_ = maxvel_[0] * Vector::Ones(ndim);
+      }
+      else {
+	return Status(false, "invalid maxvel dimension");
+      }
+    }
+    
+    if (ndim != kp_.rows()) {
+      if ((ndim != 1) && (1 == kp_.rows())) {
+	kp_ = kp_[0] * Vector::Ones(ndim);
+      }
+      else {
+	return Status(false, "invalid kp dimension");
+      }
+    }
+    
+    if (ndim != kd_.rows()) {
+      if ((ndim != 1) && (1 == kd_.rows())) {
+	kd_ = kd_[0] * Vector::Ones(ndim);
+      }
+      else {
+	return Status(false, "invalid kd dimension");
+      }
+    }
+    
+    if (cursor_) {
+      if (cursor_->dt_seconds_ != dt_seconds_) {
+	delete cursor_;
+	cursor_ = 0;
+      }
+    }
+    if ( ! cursor_) {
+      cursor_ = new TypeIOTGCursor(ndim, dt_seconds_);
+    }
+
+    if (0 == updateActual(model)) {
+      return Status(false, "updateActual() failed, did you specify a valid end_effector_id?");
+    }
+
+    trjgoal_ = actual_;
+    cursor_->position() = trjgoal_;
+    cursor_->velocity() = Vector::Zero(ndim);
+
+    Status ok;
+    return ok;
+  }
+
+
+  Status PlanarCartPosTrjTask::
+  update(Model const & model) {
+    end_effector_node_ = updateActual(model);
+    if ( ! end_effector_node_) {
+      return Status(false, "invalid end_effector");
+    }
+
+   if ( ! cursor_) {
+      return Status(false, "not initialized");
+    }
+    
+    int const trjstatus(cursor_->next(maxvel_, maxacc_, trjgoal_));
+    if (0 > trjstatus) {
+      std::ostringstream msg;
+      msg << "trajectory generation error code "
+	  << trjstatus << ": " << otg_errstr(trjstatus);
+      return Status(false, msg.str());
+    }
+
+    Vector vel;
+    jspace::Constraint* constraint = model.getConstraint();
+    if (constraint) {
+      jspace::State fullState(model.getNDOF(),model.getNDOF(),6);
+      constraint->getFullState(model.getState(),fullState);
+      vel = jacobian_*fullState.velocity_;
+    }
+    else {
+      vel = jacobian_*model.getState().velocity_;
+    }
+
+    command_ = kp_.cwise()*(cursor_->position() - actual_);
+    //command_ += kd_.cwise()*(cursor_->velocity() - vel);
+    command_ -= kd_.cwise()*(vel);   //changed for Kuka testing
+ 
+    Status ok;
+    return ok;
+  }
+
+  void PlanarCartPosTrjTask::
+  dbg(std::ostream & os,std::string const & title,std::string const & prefix) const {
+    if ( ! title.empty()) {
+      os << title << "\n";
+    }
+    os << prefix << "Pure Cart Pos Trj  Task: `" << instance_name_ << "'\n";
+
+    pretty_print(actual_, os, prefix + "  actual", prefix + "    ");
+    pretty_print(trjgoal_, os, prefix + "  goalpos", prefix + "    ");
+    pretty_print(jacobian_, os, prefix + "  jacobian", prefix + "    ");
+    pretty_print(command_, os, prefix + "  command", prefix + "    ");
+  }
+
+taoDNode const * PlanarCartPosTrjTask::
+  updateActual(Model const & model) {
+    if ( ! end_effector_node_) {
+      end_effector_node_ = model.getNode(end_effector_id_);
+    }
+    if (end_effector_node_) {
+      jspace::Transform ee_transform;
+      model.computeGlobalFrame(end_effector_node_,
+			       control_point_[0],
+			       control_point_[1],
+			       control_point_[2],
+			       ee_transform);
+      actual_ = ee_transform.translation().block(0,0,2,1);
+      Vector z(ee_transform.translation().block(2,0,1,1));
+
+      Matrix Jfull;
+      if ( ! model.computeJacobian(end_effector_node_, actual_[0], actual_[1], z[0], Jfull)) {
+	return 0;
+      }
+      jacobian_ = Jfull.block(0, 0, 2, Jfull.cols());
+    }
+    return end_effector_node_;
+  }
+
 
 }

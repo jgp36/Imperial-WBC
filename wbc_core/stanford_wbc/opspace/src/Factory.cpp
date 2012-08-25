@@ -67,12 +67,15 @@ namespace opspace {
     Factory::addTaskType<opspace::TestPureSelectCartPosTask>("opspace::TestPureSelectCartPosTask");
     Factory::addTaskType<opspace::TestVelOriSurfaceTask>("opspace::TestVelOriSurfaceTask");
     Factory::addTaskType<opspace::TestOriSurfaceTask>("opspace::TestOriSurfaceTask");
+    Factory::addTaskType<opspace::TestNormalizedImplicitSurfaceTask>("opspace::TestNormalizedImplicitSurfaceTask");
+    Factory::addTaskType<opspace::PlanarCartPosTrjTask>("opspace::PlanarCartPosTrjTask");
 
     Factory::addSkillType<opspace::GenericSkill>("opspace::GenericSkill");
     Factory::addSkillType<opspace::TaskPostureSkill>("opspace::TaskPostureSkill");
     Factory::addSkillType<opspace::TaskPostureTrjSkill>("opspace::TaskPostureTrjSkill");
     Factory::addSkillType<opspace::TwoTaskSkill>("opspace::TwoTaskSkill");
     Factory::addSkillType<opspace::ThreeTaskSkill>("opspace::ThreeTaskSkill");
+    Factory::addSkillType<opspace::FourTaskSkill>("opspace::FourTaskSkill");
   }
   
   
