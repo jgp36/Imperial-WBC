@@ -51,21 +51,17 @@ namespace uta_opspace {
     
   protected:
     
-    TestPositionOrientationTask * ee_task_;
+    PureCartPosTask * ee_task_;
+    PureJPosTask * posture_;
     task_table_t task_table_;
     
-    Parameter * ee_goal_;
-    Parameter * ori_goal_x_;
-    Parameter * ori_goal_y_;
-    Parameter * ori_goal_z_;
-    
-    Vector ee_pos_;
-    Vector ori_x_;
-    Vector ori_y_;
-    Vector ori_z_;
-    double threshold_;
-    double vel_threshold_;
+    int samples_;
+    double frequency_;
+
+    double last;
+
     int cur_row_;
+
     bool tfdone_;
 
     Matrix robotPos;

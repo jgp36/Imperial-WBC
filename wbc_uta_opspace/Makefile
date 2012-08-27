@@ -445,6 +445,21 @@ uta_opspace/JointMultiPos.s:
 .PHONY : uta_opspace/JointMultiPos.s
 
 # target to build an object file
+uta_opspace/KnownAttachSurface.o:
+	$(MAKE) -f CMakeFiles/wbc_uta_opspace.dir/build.make CMakeFiles/wbc_uta_opspace.dir/uta_opspace/KnownAttachSurface.o
+.PHONY : uta_opspace/KnownAttachSurface.o
+
+# target to preprocess a source file
+uta_opspace/KnownAttachSurface.i:
+	$(MAKE) -f CMakeFiles/wbc_uta_opspace.dir/build.make CMakeFiles/wbc_uta_opspace.dir/uta_opspace/KnownAttachSurface.i
+.PHONY : uta_opspace/KnownAttachSurface.i
+
+# target to generate assembly for a file
+uta_opspace/KnownAttachSurface.s:
+	$(MAKE) -f CMakeFiles/wbc_uta_opspace.dir/build.make CMakeFiles/wbc_uta_opspace.dir/uta_opspace/KnownAttachSurface.s
+.PHONY : uta_opspace/KnownAttachSurface.s
+
+# target to build an object file
 uta_opspace/RigidTf.o:
 	$(MAKE) -f CMakeFiles/wbc_uta_opspace.dir/build.make CMakeFiles/wbc_uta_opspace.dir/uta_opspace/RigidTf.o
 .PHONY : uta_opspace/RigidTf.o
@@ -570,6 +585,9 @@ help:
 	@echo "... uta_opspace/JointMultiPos.o"
 	@echo "... uta_opspace/JointMultiPos.i"
 	@echo "... uta_opspace/JointMultiPos.s"
+	@echo "... uta_opspace/KnownAttachSurface.o"
+	@echo "... uta_opspace/KnownAttachSurface.i"
+	@echo "... uta_opspace/KnownAttachSurface.s"
 	@echo "... uta_opspace/RigidTf.o"
 	@echo "... uta_opspace/RigidTf.i"
 	@echo "... uta_opspace/RigidTf.s"

@@ -850,6 +850,7 @@ public:
   virtual void dbg(std::ostream & os,
 		   std::string const & title,
 		   std::string const & prefix) const;
+  double evalPos(Model const & model, Vector const & point);
   
 protected:
   virtual taoDNode const * updateActual(Model const & model);
@@ -862,6 +863,10 @@ protected:
   Vector acc_;
   double R_;
   double T_;
+  Matrix camData_;
+  double ffacc_;
+  double ffvel_;
+  double begin;
 };
 
 class TestVelOriSurfaceTask

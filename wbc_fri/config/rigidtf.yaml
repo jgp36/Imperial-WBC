@@ -1,0 +1,23 @@
+- tasks:
+  - type: opspace::PureCartPosTask
+    name: eepos
+    end_effector: 6
+    kp: [   0.0,  0.0,  0.0]
+    kd: [   5.0,  5.0,  5.0]
+    control_point: [ -0.004 0.002 0.2575 ]
+    goalpos: [ 0.0, 0.0, 0.0 ]
+    goalvel: [ 0.0, 0.0, 0.0 ]
+  - type: opspace::PureJPosTask
+    name: posture
+    kp: [   0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0]
+    kd: [   3.0,  3.0,  3.0,  3.0,  3.0,  3.0,  3.0]
+    goalpos: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    
+- skills:
+  - type: uta_opspace::RigidTf
+    name: RigidTf
+    samples: 60
+    frequency: 1
+    slots:
+      eepos: eepos
+      posture: posture

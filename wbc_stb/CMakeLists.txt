@@ -37,3 +37,6 @@ target_link_libraries(fakecamera wbc_stb)
 
 rosbuild_add_executable(fakecameramoving src/fakecameramoving.cpp)
 target_link_libraries(fakecameramoving wbc_stb)
+
+rosbuild_add_executable(cameraTest src/cameraTest.cpp)
+target_link_libraries(cameraTest wbc_stb)

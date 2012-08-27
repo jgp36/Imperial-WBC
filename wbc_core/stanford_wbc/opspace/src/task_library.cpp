@@ -27,6 +27,8 @@
 #include <opspace/TypeIOTGCursor.hpp>
 #include <jspace/constraint_library.hpp>
 
+#include <ros/ros.h>
+
 using jspace::pretty_print;
 
 namespace opspace {
@@ -2311,7 +2313,9 @@ namespace opspace {
 	vgoal_x = goal_x_;
 	vgoal_y = goal_y_;
 	vgoal_z = goal_z_;
-    }
+    }      if (jacobian_.norm() > 1e-4) {
+	jacobian_ =jacobian_/jacobian_.norm();
+      }
     Status ok;
     return ok;
   }
@@ -2701,7 +2705,9 @@ namespace opspace {
 
       Matrix Jfull;
       if ( ! model.computeJacobian(end_effector_node_, cart_pos[0], cart_pos[1], cart_pos[2], Jfull)) {
-	return 0;
+	return 0;      if (jacobian_.norm() > 1e-4) {
+	jacobian_ =jacobian_/jacobian_.norm();
+      }
       }
       Matrix Jglobal(Matrix::Zero(3,Jfull.cols()));
       for (size_t ii(0); ii < 3; ++ii) {
@@ -2793,7 +2799,9 @@ namespace opspace {
     if ( ! end_effector_node_) {
       end_effector_node_ = model.getNode(end_effector_id_);
     }
-    if (end_effector_node_) {
+    if (end_effector_node_) {      if (jacobian_.norm() > 1e-4) {
+	jacobian_ =jacobian_/jacobian_.norm();
+      }
       jspace::Transform ee_transform;
       model.computeGlobalFrame(end_effector_node_,
 			       control_point_[0],
@@ -2847,7 +2855,9 @@ namespace opspace {
 
   Status TestImplicitSurfaceTask::
   init(Model const & model) {
-    if (0 > end_effector_id_) {
+    if (0 > end_effector_id_) {      if (jacobian_.norm() > 1e-4) {
+	jacobian_ =jacobian_/jacobian_.norm();
+      }
       return Status(false, "you did not (correctly) set end_effector_id");
     }
     if (3 != control_point_.rows()) {
@@ -2976,6 +2986,11 @@ namespace opspace {
     declareParameter("kd", &kd_);
     declareParameter("R", &R_);
     declareParameter("T", &T_);
+    declareParameter("camData", &camData_);
+    declareParameter("vel", &vel_);
+    declareParameter("acc", &acc_);
+    declareParameter("ffvel", &ffvel_);
+    declareParameter("ffacc", &ffacc_);
   }
 
  Status TestKnownImplicitSurfaceTask::
@@ -2989,6 +3004,8 @@ namespace opspace {
     if (0 == updateActual(model)) {
       return Status(false, "updateActual() failed, did you specify a valid end_effector_id?");
     }
+
+    begin = ros::Time::now().toSec();
     Status ok;
     return ok;
   }
@@ -3003,7 +3020,7 @@ namespace opspace {
 
     Vector actvel(jacobian_ * model.getFullState().velocity_);
 
-    command_ = acc_ - kp_.cwise() * actual_ + kd_.cwise() * (vel_ - actvel);
+    command_ = ffacc_*acc_ - kp_.cwise() * actual_ + kd_.cwise() * (ffvel_*vel_ - actvel);
 
     Status ok;
     return ok;
@@ -3050,18 +3067,31 @@ void TestKnownImplicitSurfaceTask::
       double xdot = cartVel(0);
       double ydot = cartVel(1);      
       double zdot = cartVel(2);
-      //TODO implement method of setting point motion
 
       double r, rdot, xc, yc, zc, xcdot, ycdot, zcdot, xcddot, ycddot, zcddot;
       double f = T_;
       vel_ = Vector::Zero(1);
       acc_ = Vector::Zero(1);
 
+      double amp = 0.05;
+      camData_ = Matrix::Zero(56,3);
+      for (size_t ii(0); ii<8; ++ii) {
+          for (size_t jj(0); jj<7; ++jj) {
+             camData_(ii*7+jj,0) = (0.35+0.05*ii);
+             camData_(ii*7+jj,1) = (-0.15+0.05*jj);   
+             camData_(ii*7+jj,2) = (0.25+sin((ros::Time::now().toSec()-begin))*pow(0.35+0.05*ii-0.40,2));
+         }
+      }
+
       Matrix gradf(Matrix::Zero(1,3));
-      for (size_t ii=0; ii < model.getState().camData_.rows();++ii) {
-	xc = model.getState().camData_(ii,0);
-	yc = model.getState().camData_(ii,1);
-	zc = model.getState().camData_(ii,2);
+      for (size_t ii=0; ii < camData_.rows();++ii) {
+	xc = camData_(ii,0);
+	yc = camData_(ii,1);
+	zc = camData_(ii,2);
+    
+        int pos = (xc-0.35)/0.05;
+        xcdot = 0; ycdot = 0; zcdot = cos((ros::Time::now().toSec()-begin))*pow(0.35+0.05*pos-0.40,2);
+        xcddot = 0; ycddot = 0; zcddot = -sin((ros::Time::now().toSec()-begin))*pow(0.35+0.05*pos-0.40,2);
 
 	r = sqrt(pow(x-xc,2)+pow(y-yc,2)+pow(z-zc,2));
 	rdot = ((x-xc)*(xdot-xcdot)+(y-yc)*(ydot-ycdot)+(z-zc)*(zdot-zcdot))/r;
@@ -3082,10 +3112,36 @@ void TestKnownImplicitSurfaceTask::
 
 
       jacobian_ = gradf*Jfull.block(0,0,3,Jfull.cols());
+      if (jacobian_.norm() > 1e-4) {
+        double jnorm = jacobian_.norm();
+	acc_ = acc_/jnorm;
+        vel_ = vel_/jnorm;
+        jacobian_ =jacobian_/jnorm;
+      }
 
     }
     return end_effector_node_;
   }
+
+double TestKnownImplicitSurfaceTask::
+  evalPos(Model const & model, Vector const & point) {
+    double f = T_;
+     double r, xc, yc, zc;
+    
+    for (size_t ii=0; ii < camData_.rows();++ii) {
+	xc = camData_(ii,0);
+	yc = camData_(ii,1);
+	zc = camData_(ii,2);
+    
+
+	r = sqrt(pow(point[0]-xc,2)+pow(point[1]-yc,2)+pow(point[2]-zc,2));
+	if (r < R_) {
+	  f -= pow(1-r/R_,6)*(35*pow(r/R_,2)+18*r/R_+3);
+      }
+    }
+    return f;
+    
+  } 
 
 TestVelOriSurfaceTask::
   TestVelOriSurfaceTask(std::string const & name)

@@ -32,4 +32,5 @@ rosbuild_add_library (wbc_uta_opspace
   uta_opspace/SurfaceMotion.cpp
   uta_opspace/SurfaceOriMotion.cpp
   uta_opspace/AttachSurface.cpp
+  uta_opspace/KnownAttachSurface.cpp
   )

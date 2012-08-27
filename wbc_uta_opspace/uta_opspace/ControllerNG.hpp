@@ -71,6 +71,12 @@ namespace uta_opspace {
     inline Matrix const & getlstar() const { return lstar_; }
 
     inline Matrix const & getA() const { return A_; }
+
+    void setgTrq(Vector g) { gTrq_ = g; }
+
+    void setMsrJntTrq(Vector msrJntTrq) { msrJntTrq_ = msrJntTrq; }
+
+    void setEstExtJntTrq(Vector estExtJntTrq) { estExtJntTrq_ = estExtJntTrq; }
     
   protected:
     boost::shared_ptr<Task> fallback_task_;
@@ -107,6 +113,11 @@ namespace uta_opspace {
     bool g_set;
 
     Matrix lstar_;
+
+    Vector gTrq_;
+    Vector msrJntTrq_;
+    Vector estExtJntTrq_;
+    Matrix camData_;
 
   };
 

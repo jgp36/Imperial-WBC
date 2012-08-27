@@ -23,7 +23,8 @@ int main(int argc, char** argv) {
         for (size_t jj(0); jj<7; ++jj) {
            p3dData[ii*7+jj].x = (0.35+0.05*ii)*1e2;
            p3dData[ii*7+jj].y = (-0.15+0.05*jj)*1e2;    
-           p3dData[ii*7+jj].z = (0.25+pow(0.35+0.05*ii-0.40,2))*1e2 + amp*sin(2*3.14*jj/7)*sin((ros::Time::now().toSec()-begin));
+           //p3dData[ii*7+jj].z = (0.25+pow(0.35+0.05*ii-0.40,2))*1e2 + amp*sin(2*3.14*jj/7)*sin((ros::Time::now().toSec()-begin));
+	   p3dData[ii*7+jj].z = (0.25+pow(0.35+0.05*ii-0.40,2))*1e2;
        }
     }
 
@@ -39,7 +40,8 @@ int main(int argc, char** argv) {
 
     for (size_t ii(0); ii<8; ++ii) {
         for (size_t jj(0); jj<7; ++jj) { 
-           p3dData[ii*7+jj].z = (0.25+pow(0.35+0.05*ii-0.40,2))*1e2 + amp*sin(2*3.14*jj/7)*sin((ros::Time::now().toSec()-begin));
+           //p3dData[ii*7+jj].z = (0.25+pow(0.35+0.05*ii-0.40,2))*1e2 + amp*sin((ros::Time::now().toSec()-begin));
+	   p3dData[ii*7+jj].z = (0.25+sin((ros::Time::now().toSec()-begin))*pow(0.35+0.05*ii-0.40,2))*1e2;
        }
     }
 

@@ -6,6 +6,8 @@
 #include <Eigen/LU>
 #include <Eigen/SVD>
 
+#include <ros/ros.h>
+
 using boost::shared_ptr;
 
 namespace uta_opspace {
@@ -15,19 +17,13 @@ namespace uta_opspace {
   RigidTf(std::string const & name)
     : Skill(name),
       ee_task_(0),
-      ee_pos_(Vector::Zero(3)),
-      threshold_(-1),
-      vel_threshold_(-1),
       cur_row_(0),
       tfdone_(false)
     {
       declareSlot("eepos", &ee_task_);
-      declareParameter("eepos", &ee_pos_);
-      declareParameter("ori_x", &ori_x_);
-      declareParameter("ori_y", &ori_y_);
-      declareParameter("ori_z", &ori_z_);
-      declareParameter("threshold", &threshold_);
-      declareParameter("vel_threshold", &vel_threshold_);
+      declareSlot("posture", &posture_);
+      declareParameter("samples", &samples_);
+      declareParameter("frequency", &frequency_);
   }
 
  Status RigidTf::
@@ -36,48 +32,9 @@ namespace uta_opspace {
     Status st(Skill::init(model));
     if ( ! st) { return st; }
     
-    if (0 != ee_pos_.rows()%3){
-      st.ok = false;
-      st.errstr = "wrong number of rows in ee_pos vector";
-      return st;
-    }
-
-    if (0 > threshold_) {
-      threshold_ = 0.08;
-    }
-    
-    if (0 > vel_threshold_) {
-      vel_threshold_ = 0.08;
-    }
-
-    ee_goal_ = ee_task_->lookupParameter("goalpos", PARAMETER_TYPE_VECTOR);
-    ori_goal_x_ = ee_task_->lookupParameter("goal_x", PARAMETER_TYPE_VECTOR);
-    ori_goal_y_ = ee_task_->lookupParameter("goal_y", PARAMETER_TYPE_VECTOR);
-    ori_goal_z_ = ee_task_->lookupParameter("goal_z", PARAMETER_TYPE_VECTOR);
-
-    if ( ! ee_goal_) {
-      st.ok = false;
-      st.errstr = "no appropriate goal parameter in ee_task";
-      return st;
-    }
-
-   if ( ! ori_goal_x_) {
-      st.ok = false;
-      st.errstr = "no appropriate ori x goal parameter in ee_task";
-      return st;
-    }
-   if ( ! ori_goal_y_) {
-      st.ok = false;
-      st.errstr = "no appropriate ori y goal parameter in ee_task";
-      return st;
-    }
-   if ( ! ori_goal_z_) {
-      st.ok = false;
-      st.errstr = "no appropriate ori z goal parameter in ee_task";
-      return st;
-   }
 
    task_table_.push_back(ee_task_);
+   task_table_.push_back(posture_);
      
    for (size_t ii(0); ii < task_table_.size(); ++ii) {
       st = task_table_[ii]->init(model);
@@ -86,23 +43,9 @@ namespace uta_opspace {
       }
     }
 
-   Vector cur_eepos(Vector::Zero(3));
-   for (size_t ii(0); ii < 3; ++ii) {
-     cur_eepos[ii] = ee_pos_[3*cur_row_+ii];
-   }
-
-   st = ee_goal_->set(cur_eepos);
-   if (!st) { return st; }
-
-   st = ori_goal_x_->set(ori_x_);
-   if (!st) { return st; }
-   st = ori_goal_y_->set(ori_y_);
-   if (!st) { return st; }
-   st = ori_goal_z_->set(ori_z_);
-   if (!st) { return st; }
-
-   robotPos = Matrix::Zero(ee_pos_.rows()/3,3);
-   camPos = Matrix::Zero(ee_pos_.rows()/3,3);
+   robotPos = Matrix::Zero(samples_,3);
+   camPos = Matrix::Zero(samples_,3);
+   last = ros::Time::now().toSec();
    return st;
   }
 
@@ -110,37 +53,17 @@ namespace uta_opspace {
   update(Model const & model)
   {
     Status st;    
-    Vector cur_eepos(Vector::Zero(3));
-    Vector delta;
-    Vector v_delta;
-
-    for (size_t ii(0); ii < task_table_.size(); ++ii) {
+   for (size_t ii(0); ii < task_table_.size(); ++ii) {
       st = task_table_[ii]->update(model);
-      if ( ! st) { return st; }
+      if ( ! st) {
+	return st;
+      }
     }
-    for(int ii=0; ii<3; ii++) {
-      cur_eepos[ii] = ee_pos_[3*cur_row_+ii];
-    }
-    
-    delta = cur_eepos - ee_task_->getActual().block(0, 0, 3, 1);
-    jspace::Constraint* constraint = model.getConstraint();
-    if (constraint) {
-      jspace::State fullState(model.getNDOF(),model.getNDOF(),6);
-      constraint->getFullState(model.getState(),fullState);
-      v_delta = ee_task_->getJacobian()*fullState.velocity_;
-    }
-    else {
-      v_delta = ee_task_->getJacobian()*model.getState().velocity_;
-    }
-    
-    if (delta.norm() < threshold_ && v_delta.norm() < vel_threshold_) {
-      if (cur_row_ < (ee_pos_.rows()/3)-1) {
+ 
+    if (ros::Time::now().toSec() - last > 1/frequency_) {
+      if (cur_row_ < samples_-1) {
+        last = ros::Time::now().toSec();
 	++cur_row_;
-	for(size_t jj(0); jj<3; ++jj) {
-	  cur_eepos[jj] = ee_pos_[3*cur_row_+jj];
-	}
-	st = ee_goal_->set(cur_eepos);
-	if (! st) { return st; } 
 	//Save data - assumes one point sent
 	robotPos(cur_row_-1,0) = ee_task_->getActual()[0];
 	robotPos(cur_row_-1,1) = ee_task_->getActual()[1];
@@ -150,11 +73,6 @@ namespace uta_opspace {
 	camPos(cur_row_-1,1) = model.getState().camData_(0,1);
 	camPos(cur_row_-1,2) = model.getState().camData_(0,2);
 
-	if (camPos(cur_row_-1,0) < -100) {
-	   st.ok = false;
-      	   st.errstr = "Marker Missing";
-      	   return st;
-	}
       }
       //Calculate Transform
       else if (tfdone_ == false) { 
@@ -168,26 +86,20 @@ namespace uta_opspace {
 	camPos(cur_row_,1) = model.getState().camData_(0,1);
 	camPos(cur_row_,2) = model.getState().camData_(0,2);
 
-	if (camPos(cur_row_,0) < -100) {
-	   st.ok = false;
-      	   st.errstr = "Marker Missing";
-      	   return st;
-	}
-
 	//Find centroids
 	Vector robotCent(Vector::Zero(3));
 	Vector camCent(Vector::Zero(3));
-	for (size_t ii(0); ii < ee_pos_.rows()/3; ++ii) {
+	for (size_t ii(0); ii < samples_; ++ii) {
 	  for (size_t jj(0); jj < 3; ++jj) {
 	    robotCent(jj) = robotCent(jj) + robotPos(ii,jj);
 	    camCent(jj) = camCent(jj) + camPos(ii,jj);
 	  }
 	}
-	robotCent = robotCent/(ee_pos_.rows()/3);
-	camCent = camCent/(ee_pos_.rows()/3);
+	robotCent = robotCent/(samples_);
+	camCent = camCent/(samples_);
 
 	//Subtract centroids from points
-	for (size_t ii(0); ii < ee_pos_.rows()/3; ++ii) {
+	for (size_t ii(0); ii < samples_; ++ii) {
 	  for (size_t jj(0); jj < 3; ++jj) {
 	    robotPos(ii,jj) = robotPos(ii,jj) - robotCent(jj);
 	    camPos(ii,jj) = camPos(ii,jj) - camCent(jj);
@@ -198,7 +110,7 @@ namespace uta_opspace {
 	Matrix H(Matrix::Zero(3,3));
 	for (size_t ii(0); ii < 3; ++ii) {
 	  for (size_t jj(0); jj < 3; ++jj) {
-	    for (size_t kk(0); kk < ee_pos_.rows()/3; ++kk) {
+	    for (size_t kk(0); kk < samples_; ++kk) {
 	      H(ii,jj) = H(ii,jj) + camPos(kk,ii)*robotPos(kk,jj);
 	    }
 	  }
@@ -218,6 +130,9 @@ namespace uta_opspace {
      else {
 	jspace::pretty_print(R,std::cout, "R", "  ");
 	jspace::pretty_print(d,std::cout, "d", "  ");
+
+	jspace::pretty_print(R*model.getState().camData_.block(0,0,1,3).tranpose()+d, "cam", " ");
+	jspace::pretty_print(ee_task_->getActual(), "actual", " ");
      }
     }
  

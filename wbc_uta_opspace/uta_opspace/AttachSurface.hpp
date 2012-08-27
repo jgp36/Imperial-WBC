@@ -33,32 +33,16 @@ namespace uta_opspace {
 	STATE_NORMAL
     } state_;
     
-    TestImplicitSurfaceTask * surface_task_;
-    TestOriSurfaceTask * ori_task_;
+    TestNormalizedImplicitSurfaceTask * surface_task_;
     TestPureSelectCartPosTask * ee_surf_task_;
-
     PureCartPosTask * ee_task_;
     PureJPosTask * posture_;
 
     task_table_t normal_task_table_;
     task_table_t attached_task_table_;
     
-    Parameter * ee_surf_goal_;
-    Parameter * ee_goal_;
-    Parameter * pos_goal_;
-    
-    Vector ee_pos_;
-    Vector defposture_;
-    int ee_num_;
-    double threshold_;
-    double vel_threshold_;
-    int cur_row_;
-    bool forward_;
-
-    double zoffset_;
-    double zamp_;
-
-    double surflimit_;
+    double surflimitlow_;
+    double surflimithigh_;
     
   };
   

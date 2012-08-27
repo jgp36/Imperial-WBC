@@ -32,6 +32,7 @@
 #include <Eigen/SVD>
 #include <opspace/task_library.hpp>
 #include <jspace/constraint_library.hpp>
+#include <err.h>
 
 using jspace::pretty_print;
 using boost::shared_ptr;
@@ -48,9 +49,9 @@ namespace uta_opspace {
       logsubsample_(-1),
       logprefix_(""),
       logcount_(-1)
-      /*loglen_(1000),
+      /*loglen_(3000),
       logsubsample_(1),
-      logprefix_("Ramp_Experiment"),
+      logprefix_("Data_Test"),
       logcount_(0)*/
   {
     declareParameter("loglen", &loglen_, PARAMETER_FLAG_NOLOG);
@@ -61,6 +62,10 @@ namespace uta_opspace {
     declareParameter("gamma", &gamma_);
     declareParameter("fullJpos", &fullJpos_);
     declareParameter("fullJvel", &fullJvel_);
+    declareParameter("gravity", &gTrq_);
+    declareParameter("msrJntTrq", &msrJntTrq_);
+    declareParameter("estExtJntTrq", &estExtJntTrq_);
+    declareParameter("camData", &camData_);
   }
   
   
@@ -176,6 +181,7 @@ namespace uta_opspace {
 
     fullJpos_ = model.getFullState().position_;
     fullJvel_ = model.getFullState().velocity_;
+    camData_ = model.getState().camData_;
     
 
     Matrix ainv;

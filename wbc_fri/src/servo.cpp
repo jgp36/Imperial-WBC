@@ -5,6 +5,7 @@
 #include <motion_control_msgs/JointEfforts.h>
 #include <wbc_fri/FriJointImpedance.h>
 #include <wbc_fri/MassMatrix.h>
+#include <wbc_fri/FriJointState.h>
 #include <jspace/test/sai_util.hpp>
 #include <opspace/Skill.hpp>
 #include <opspace/Factory.hpp>
@@ -14,6 +15,7 @@
 #include <uta_opspace/SurfaceMotion.hpp>
 #include <uta_opspace/SurfaceOriMotion.hpp>
 #include <uta_opspace/AttachSurface.hpp>
+#include <uta_opspace/KnownAttachSurface.hpp>
 #include <uta_opspace/JointMultiPos.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <err.h>
@@ -98,6 +100,21 @@ void massCallback(const MassMatrix::ConstPtr& msg) {
 	}
   }
   controller->setAmatrix(A);
+}
+
+//Pure data collection
+void friCallback(const FriJointState::ConstPtr& msg) {
+	Vector gravity(Vector::Zero(7));
+	Vector msrJntTrq(Vector::Zero(7));
+	Vector estExtJntTrq(Vector::Zero(7));
+	for (size_t ii(0); ii < 7; ++ii) {
+		gravity[ii] = msg->gravity[ii];
+		msrJntTrq[ii] = msg->msrJntTrq[ii];
+		estExtJntTrq[ii] = msg->estExtJntTrq[ii];
+	}
+	controller->setgTrq(gravity);
+	controller->setMsrJntTrq(msrJntTrq);
+	controller->setEstExtJntTrq(estExtJntTrq);
 }
 
 
@@ -305,6 +322,7 @@ int main(int argc, char ** argv)
   Factory::addSkillType<uta_opspace::SurfaceMotion>("uta_opspace::SurfaceMotion");
   Factory::addSkillType<uta_opspace::SurfaceOriMotion>("uta_opspace::SurfaceOriMotion");
   Factory::addSkillType<uta_opspace::AttachSurface>("uta_opspace::AttachSurface");
+  Factory::addSkillType<uta_opspace::KnownAttachSurface>("uta_opspace::KnownAttachSurface");
   Factory::addSkillType<uta_opspace::JointMultiPos>("uta_opspace::JointMultiPos");
   
   
@@ -334,6 +352,7 @@ int main(int argc, char ** argv)
   ros::Publisher jointimp_pub = node.advertise<FriJointImpedance>("/FriJointImpedance", 1000);
   ros::Subscriber state_sub = node.subscribe("/JointState", 1000, stateCallback);
   ros::Subscriber mass_sub = node.subscribe("/MassMatrix", 1000, massCallback);
+  ros::Subscriber fristate_sub = node.subscribe("/FriJointState", 1000, friCallback);
   JointEfforts torque_msg;
   FriJointImpedance jointimp_msg;
 
@@ -356,7 +375,7 @@ int main(int argc, char ** argv)
   sprintf(local_cam_port, "%d", CLIENT_PORT+2);
   char cam_port [10];
   sprintf(cam_port, "%d", CS8C_PORT+2);
-  UdpOSI cameraUDP(local_cam_port, "127.0.0.1", cam_port, 0);
+  UdpOSI cameraUDP("50000", "192.168.1.39", cam_port, 0);
   int bytes =0;
   if (cam) {
     bytes = cameraUDP.recvPacket((char*)rawCamData, sizeof(rawCamData));
@@ -394,6 +413,7 @@ int main(int argc, char ** argv)
   ros::Duration dbg_dt(0.1);
   ros::Duration dump_dt(0.05);
  //ros::Rate loop_rate(10);
+  ros::Time begin(ros::Time::now());
   while (ros::ok()) {
 
     //UDP camera in and out
@@ -459,7 +479,6 @@ int main(int argc, char ** argv)
 
     torque_pub.publish(torque_msg);
     jointimp_pub.publish(jointimp_msg);
-
     ros::Time t1(ros::Time::now());
     if (verbose) {
       if (t1 - dbg_t0 > dbg_dt) {
@@ -469,12 +488,12 @@ int main(int argc, char ** argv)
 	cout << "--------------------------------------------------\n";
 	jspace::pretty_print(model->getState().position_, cout, "jpos", "  ");
 	jspace::pretty_print(controller->getCommand(), cout, "gamma", "  ");
-	//jspace::pretty_print(model->getState().camData_, cout, "cam", "  ");
+	jspace::pretty_print(model->getState().camData_, cout, "cam", "  ");
       }
     }
     if (t1 - dump_t0 > dump_dt) {
       dump_t0 = t1;
-      //controller->qhlog(*servo.skill, rt_get_cpu_time_ns() / 1000);
+      controller->qhlog(*servo.skill, ros::Duration(t1-begin).toSec()*1000);
     }
     ros::spinOnce();
     //loop_rate.sleep();
