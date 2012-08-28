@@ -2,17 +2,17 @@
   - type: opspace::TestNormalizedImplicitSurfaceTask
     name: surface
     end_effector: 6
-    kp: [  3.0 ]
-    kd: [  30.0 ]
-    control_point: [ 0, 0, 0.2 ]
-    R: 0.25
-    T: 8.0
+    kp: [  15.0 ]
+    kd: [  40.0 ]
+    control_point: [ -0.004, 0.002, 0.2575 ]
+    R: 0.2
+    T: 4.5
   - type: opspace::TestPureSelectCartPosTask
     name: eesurf
     end_effector: 6
     kp: [   0.0,  0.0 ]
     kd: [   0.0,  0.0 ]
-    control_point: [ 0, 0, 0.2 ]
+    control_point: [ -0.004, 0.002, 0.2575 ]
     goalpos: [ 0.50, 0.00 ]
     goalvel: [ 0.0, 0.0 ]
     selection: [1, 1, 0]
@@ -21,7 +21,7 @@
     end_effector: 6
     kp: [   0.0,  0.0,  0.0]
     kd: [   5.0,  5.0,  5.0 ]
-    control_point: [ 0, 0, 0.2 ]
+    control_point: [ -0.004, 0.002, 0.2575 ]
     goalpos: [ 0.5, 0.0, 0.0 ]
     goalvel: [ 0.0, 0.0, 0.0 ]
   - type: opspace::PureJPosTask

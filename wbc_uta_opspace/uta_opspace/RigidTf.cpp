@@ -131,8 +131,9 @@ namespace uta_opspace {
 	jspace::pretty_print(R,std::cout, "R", "  ");
 	jspace::pretty_print(d,std::cout, "d", "  ");
 
-	jspace::pretty_print(R*model.getState().camData_.block(0,0,1,3).tranpose()+d, "cam", " ");
-	jspace::pretty_print(ee_task_->getActual(), "actual", " ");
+	Vector result(R*model.getState().camData_.block(0,0,1,3).transpose()+d);
+	jspace::pretty_print(result,std::cout, "cam", " ");
+	jspace::pretty_print(ee_task_->getActual(),std::cout, "actual", " ");
      }
     }
  

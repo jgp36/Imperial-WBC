@@ -335,7 +335,22 @@ int main(int argc, char ** argv)
   //Need to setup the transform here
   //Should be changed to a parameter in TAO
   jspace::Matrix R(Matrix::Identity(3,3));
+  R(0,0) = 0.9221;
+  R(0,1) = -0.0576;
+  R(0,2) = -0.3827;
+  R(1,0) = 0.3791;
+  R(1,1) = -0.0643;
+  R(1,2) = 0.9231;
+  R(2,0) = -0.0778;
+  R(2,1) = -0.9963;
+  R(2,2) = -0.0374;
   jspace::Matrix d(Matrix::Zero(3,1));
+  /*d(0,0) = -1.0877;
+  d(1,0) = 2.8646;
+  d(2,0) = 0.0528;*/
+  d(0,0) = -1.0877;
+  d(1,0) = 3.0146;
+  d(2,0) = 0.0428;
   
   controller.reset(new ControllerNG("wbc_fri::servo"));
   param_cbs.reset(new ParamCallbacks());
@@ -386,9 +401,9 @@ int main(int argc, char ** argv)
     }
     camData = Matrix::Zero(bytes/sizeof(Position3d),3);
     for (size_t ii=0; ii < bytes/sizeof(Position3d); ++ii){
-      camData(ii,0) = rawCamData[ii].x*1e-2;
-      camData(ii,1) = rawCamData[ii].y*1e-2;
-      camData(ii,2) = rawCamData[ii].z*1e-2;
+      camData(ii,0) = rawCamData[ii].x*1e-3;
+      camData(ii,1) = rawCamData[ii].y*1e-3;
+      camData(ii,2) = rawCamData[ii].z*1e-3;
     } 
     Matrix temp(R * camData.transpose() + d*Matrix::Ones(1,bytes/sizeof(Position3d)));
     state.camData_ = temp.transpose();
@@ -425,9 +440,9 @@ int main(int argc, char ** argv)
 	return 0;
       }    
       for (size_t ii=0; ii < bytes/sizeof(Position3d); ++ii){
-	camData(ii,0) = rawCamData[ii].x*1e-2;
-	camData(ii,1) = rawCamData[ii].y*1e-2;
-	camData(ii,2) = rawCamData[ii].z*1e-2;
+	camData(ii,0) = rawCamData[ii].x*1e-3;
+	camData(ii,1) = rawCamData[ii].y*1e-3;
+	camData(ii,2) = rawCamData[ii].z*1e-3;
       }
       Matrix temp(R * camData.transpose() + d*Matrix::Ones(1,bytes/sizeof(Position3d)));
       state.camData_ = temp.transpose();

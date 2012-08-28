@@ -45,14 +45,14 @@ namespace uta_opspace {
       fallback_(false),
       a_set(false),
       g_set(false),
-      loglen_(-1),
+      /*loglen_(-1),
       logsubsample_(-1),
       logprefix_(""),
-      logcount_(-1)
-      /*loglen_(3000),
+      logcount_(-1)*/
+      loglen_(3000),
       logsubsample_(1),
       logprefix_("Data_Test"),
-      logcount_(0)*/
+      logcount_(0)
   {
     declareParameter("loglen", &loglen_, PARAMETER_FLAG_NOLOG);
     declareParameter("logsubsample", &logsubsample_, PARAMETER_FLAG_NOLOG);

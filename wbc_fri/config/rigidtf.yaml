@@ -4,7 +4,7 @@
     end_effector: 6
     kp: [   0.0,  0.0,  0.0]
     kd: [   5.0,  5.0,  5.0]
-    control_point: [ -0.004 0.002 0.2575 ]
+    control_point: [ -0.004, 0.002, 0.2575 ]
     goalpos: [ 0.0, 0.0, 0.0 ]
     goalvel: [ 0.0, 0.0, 0.0 ]
   - type: opspace::PureJPosTask
