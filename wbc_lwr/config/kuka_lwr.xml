@@ -1,0 +1,134 @@
+<?xml version="1.0" ?>
+
+<dynworld>
+
+  <baseNode>
+    <controller>2</controller>
+    <gravity>0, 0, 0</gravity> <!-- Kuka is auto gravity compensated -->
+    <robotName>Kuka LWR</robotName>
+    <pos>0, 0, 0</pos>
+    <rot>1, 0, 0, 0</rot>
+
+    <jointNode>
+      <jointName>right-shoulder-straightward</jointName>
+      <linkName>right-shoulder</linkName>
+      <defaultJointPosition>0.0</defaultJointPosition>
+      <ID>0</ID>
+      <axis>z</axis>
+      <type>r</type>
+      <rot>1.0, 0.0, 0.0, 0.0</rot>
+      <pos>0.0, 0.0, 0.31</pos>
+      <mass>0.0001</mass>
+      <inertia>0.0, 0.0, 0.0</inertia>
+      <com>0.0, 0.0, 0.0</com>
+      <rotorInertia>0.0</rotorInertia>
+      <gearRatio>0</gearRatio>
+      <constrained>0</constrained>
+
+      <jointNode>
+	<jointName>right-shoulder-lateral</jointName>
+	<linkName>right-shoulder</linkName>
+	<defaultJointPosition>0.0</defaultJointPosition>
+	<ID>1</ID>
+	<axis>z</axis>
+	<type>r</type>
+	<rot>1.0, 0.0, 0.0, 1.5708</rot>
+	<pos>0.0, 0.0, 0.0</pos>
+	<mass>0.0001</mass>
+	<inertia>0.0, 0.0, 0.0</inertia>
+	<com>0.0, 0.0, 0.0</com>
+	<rotorInertia>0.0</rotorInertia>
+	<gearRatio>0</gearRatio>
+        <constrained>0</constrained>
+	
+	<jointNode>
+	  <jointName>right-shoulder-rolling</jointName>
+	  <linkName>right-upper-arm</linkName>
+	  <defaultJointPosition>0.0</defaultJointPosition>
+	  <ID>2</ID>
+	  <axis>z</axis>
+	  <type>r</type>
+	  <rot>0.0, 0.7071, 0.7071, 3.1416</rot>
+	  <pos>0.0, 0.4, 0.0</pos>
+	  <mass>0.0001</mass>
+	  <inertia>0.0, 0.0, 0.0</inertia>
+	  <com>0.0, 0.0, 0.0</com>
+	  <rotorInertia>0.0</rotorInertia>
+	  <gearRatio>0</gearRatio>
+	  <constrained>0</constrained>
+	  
+	  <jointNode>
+	    <jointName>right-elbow</jointName>
+	    <linkName>right-lower-arm</linkName>
+	    <defaultJointPosition>0.0</defaultJointPosition>
+	    <ID>3</ID>
+	    <axis>z</axis>
+	    <type>r</type>
+	    <rot>1, 0, 0, 1.5708</rot>
+	    <pos>0.0, 0.0, 0.0</pos>
+	    <mass>0.0001</mass>
+	    <inertia>0.0, 0.0, 0.0</inertia>
+	    <com>0.0, 0.0, 0.0</com>
+	    <rotorInertia>0.0</rotorInertia>
+	    <gearRatio>0</gearRatio>
+	    <constrained>0</constrained>
+	    
+	    <jointNode>
+	      <jointName>right-wrist-z</jointName>
+	      <linkName>inter-right-wrist-z</linkName>
+	      <defaultJointPosition>0.0</defaultJointPosition>
+	      <ID>4</ID>
+	      <axis>z</axis>
+	      <type>r</type>
+	      <rot>1.0, 0.0, 0.0, -1.5708</rot>
+	      <pos>0.0, 0.39, 0.0</pos>
+	      <mass>0.0001</mass>
+	      <inertia>0.0, 0.0, 0.0</inertia>
+	      <com>0.0, 0.0, 0.0</com>
+	      <rotorInertia>0.0</rotorInertia>
+	      <gearRatio>0</gearRatio>
+	      <constrained>0</constrained>
+	      
+	      <jointNode>
+		<jointName>right-wrist-y</jointName>
+		<linkName>inter-right-wrist-y</linkName>
+		<defaultJointPosition>0.0</defaultJointPosition>
+		<ID>5</ID>
+		<axis>z</axis>
+		<type>r</type>
+		<rot>0.0, 0.7071, 0.7071, 3.1416</rot>
+		<pos>0.0, 0.0, 0.0</pos>
+		<mass>0.0001</mass>
+		<inertia>0.0, 0.0, 0.0</inertia>
+		<com>0.0, 0.0, 0.0</com>
+		<rotorInertia>0.0</rotorInertia>
+		<gearRatio>0</gearRatio>
+	        <constrained>0</constrained>
+
+		<jointNode>
+		  <jointName>right-wrist-x</jointName>
+		  <linkName>right-hand</linkName>
+		  <defaultJointPosition>0.0</defaultJointPosition>
+		  <ID>6</ID>
+		  <axis>z</axis>
+		  <type>r</type>
+		  <rot>1.0, 0.0, 0.0, -1.5708</rot>
+		  <pos>0.0, 0.078, 0.0</pos>
+		  <mass>0.0001</mass>
+		  <inertia>0.0, 0.0, 0.0</inertia>
+		  <com>0.0, 0.0, 0.0</com>
+		  <rotorInertia>0.0</rotorInertia>
+		  <gearRatio>0</gearRatio>
+		  <constrained>0</constrained>
+		  
+		</jointNode>
+	      </jointNode>
+	    </jointNode>
+	  </jointNode>
+	</jointNode>
+      </jointNode>
+    </jointNode>
+    
+  </baseNode>
+
+</dynworld>
