@@ -32,13 +32,23 @@ SET(CMAKE_C_INCLUDE_PATH
   "/home/mimkuka/ros_workspace/whole_body_control/wbc_msgs/msg/cpp"
   "/home/mimkuka/ros_workspace/whole_body_control/wbc_msgs/msg_gen/cpp/include"
   "/home/mimkuka/ros_workspace/whole_body_control/wbc_msgs/srv_gen/cpp/include"
+  "/home/mimkuka/ros_workspace/lueven_fri/lwr_fri/msg_gen/cpp/include"
+  "/opt/ros/fuerte/stacks/orocos_kinematics_dynamics/orocos_kdl/install_dir/include"
   "/usr/include/eigen3"
+  "/opt/ros/fuerte/stacks/geometry/tf_conversions/include"
+  "/opt/ros/fuerte/stacks/geometry/tf/include"
+  "/opt/ros/fuerte/stacks/geometry/tf/msg_gen/cpp/include"
+  "/opt/ros/fuerte/stacks/geometry/tf/srv_gen/cpp/include"
+  "/opt/ros/fuerte/stacks/bullet/include"
+  "/opt/ros/fuerte/stacks/geometry/angles/include"
   "/home/mimkuka/ros_workspace/orocos_core/orocos_toolchain/install/include"
   "/home/mimkuka/ros_workspace/orocos_core/orocos_toolchain/install/include/orocos"
   "/home/mimkuka/ros_workspace/orocos_core/rtt_common_msgs/rtt_sensor_msgs/.."
   "/home/mimkuka/ros_workspace/orocos_core/orocos_toolchain/rtt/../install/include"
   "/home/mimkuka/ros_workspace/orocos_core/rtt_common_msgs/rtt_geometry_msgs/.."
   "/home/mimkuka/ros_workspace/motion_control/rtt_motion_control_msgs/.."
+  "/home/mimkuka/ros_workspace/lueven_fri/lwr_fri/include"
+  "/home/mimkuka/ros_workspace/lueven_fri/lwr_fri/.."
   )
 SET(CMAKE_CXX_INCLUDE_PATH ${CMAKE_C_INCLUDE_PATH})
 SET(CMAKE_Fortran_INCLUDE_PATH ${CMAKE_C_INCLUDE_PATH})

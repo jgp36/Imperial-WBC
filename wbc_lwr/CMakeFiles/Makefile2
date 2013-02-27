@@ -486,6 +486,41 @@ clean: CMakeFiles/test-results-run.dir/clean
 .PHONY : clean
 
 #=============================================================================
+# Target rules for target CMakeFiles/testComponent.dir
+
+# All Build rule for target.
+CMakeFiles/testComponent.dir/all: CMakeFiles/rosbuild_precompile.dir/all
+	$(MAKE) -f CMakeFiles/testComponent.dir/build.make CMakeFiles/testComponent.dir/depend
+	$(MAKE) -f CMakeFiles/testComponent.dir/build.make CMakeFiles/testComponent.dir/build
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/mimkuka/ros_workspace/whole_body_control/wbc_lwr/CMakeFiles  1
+	@echo "Built target testComponent"
+.PHONY : CMakeFiles/testComponent.dir/all
+
+# Include target in all.
+all: CMakeFiles/testComponent.dir/all
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/testComponent.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/mimkuka/ros_workspace/whole_body_control/wbc_lwr/CMakeFiles 1
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/testComponent.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/mimkuka/ros_workspace/whole_body_control/wbc_lwr/CMakeFiles 0
+.PHONY : CMakeFiles/testComponent.dir/rule
+
+# Convenience name for target.
+testComponent: CMakeFiles/testComponent.dir/rule
+.PHONY : testComponent
+
+# clean rule for target.
+CMakeFiles/testComponent.dir/clean:
+	$(MAKE) -f CMakeFiles/testComponent.dir/build.make CMakeFiles/testComponent.dir/clean
+.PHONY : CMakeFiles/testComponent.dir/clean
+
+# clean rule for target.
+clean: CMakeFiles/testComponent.dir/clean
+.PHONY : clean
+
+#=============================================================================
 # Target rules for target CMakeFiles/tests.dir
 
 # All Build rule for target.
@@ -554,7 +589,7 @@ clean: CMakeFiles/uninstall.dir/clean
 CMakeFiles/wbcComponent.dir/all: CMakeFiles/rosbuild_precompile.dir/all
 	$(MAKE) -f CMakeFiles/wbcComponent.dir/build.make CMakeFiles/wbcComponent.dir/depend
 	$(MAKE) -f CMakeFiles/wbcComponent.dir/build.make CMakeFiles/wbcComponent.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/mimkuka/ros_workspace/whole_body_control/wbc_lwr/CMakeFiles  1
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/mimkuka/ros_workspace/whole_body_control/wbc_lwr/CMakeFiles  2
 	@echo "Built target wbcComponent"
 .PHONY : CMakeFiles/wbcComponent.dir/all
 

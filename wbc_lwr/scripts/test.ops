@@ -1,31 +1,23 @@
+import("lwr_fri")
 import("wbc_lwr")
-import("wbc_display")
-import("fake_robot")
 
-loadComponent("wbc", "wbc_lwr::wbcComponent")
-loadComponent("display", "Wbc_display")
-loadComponent("robot", "Fake_robot")
+loadComponent("lwr","lwr_fri::FRIComponent")
+loadComponent("wbc", "wbc_lwr::testComponent")
 
-wbc.robot = "config/kuka_lwr.xml"
-wbc.skill = "config/jointspace.yaml"
-wbc.camera = false
-wbc.verbose = true
-
-display.rate = 4
-
+setActivity("lwr",0, 99, ORO_SCHED_RT)
+setActivity("wbc", 0.05, 99, ORO_SCHED_RT)
+lwr.udp_port=49938
+lwr.configure
 wbc.configure
-setActivity("wbc", 0.001, HighestPriority, ORO_SCHED_RT)
-setActivity("display", 0.5, 99, ORO_SCHED_OTHER)
-setActivity("robot", 0.001, HighestPriority, ORO_SCHED_RT)
-robot.start
-display.start
+lwr.start
 wbc.start
 
 var ConnPolicy cp
 cp.type = DATA
 cp.lock_policy = LOCK_FREE
 
-connect("wbc.SkillState","display.SkillState",cp)
-connect("wbc.RobotState","display.RobotState",cp)
-connect("wbc.JointState","robot.JointState",cp)
-connect("wbc.JointEfforts","robot.JointEfforts",cp)
+connect("wbc.JointState","lwr.JointState",cp)
+connect("wbc.JointEfforts","lwr.JointEffortCommand",cp)
+connect("wbc.FriJointImpedance","lwr.FriJointImpedance",cp)
+connect("wbc.MassMatrix","lwr.MassMatrix",cp)
+connect("wbc.FriJointState","lwr.FriJointState",cp)

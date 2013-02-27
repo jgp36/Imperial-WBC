@@ -24,15 +24,15 @@ wbcComponent::wbcComponent(std::string const& name)
   //JointState
   this->addPort("JointState", port_joint_state);
   //MassMatrix
-  //this->addPort("MassMatrix", port_mass_matrix);
+  this->addPort("MassMatrix", port_mass_matrix);
   //FriJointState
-  //this->addPort("FriJointState", port_fri_joint_state);
+  this->addPort("FriJointState", port_fri_joint_state);
 
   //Outputs
   //JointEffortCommand
   this->addPort("JointEfforts", port_joint_efforts);
   //FriJointImpedance
-  //this->addPort("FriJointImpedance", port_fri_joint_impedance);
+  this->addPort("FriJointImpedance", port_fri_joint_impedance);
 
   //Data Logging Output
   this->addPort("RobotState", port_robot_state);
@@ -139,13 +139,13 @@ bool wbcComponent::configureHook(){
   }
 
   //Setup Joint Impedance - always use pure joint impedance - could be setup as a parameter
-  /*
+  
     for (size_t ii(0); ii < model->getNDOF(); ++ii) {
-       fri_joint_impedance.stiffness.push_back(0);
-       fri_joint_impedance.damping.push_back(0);
+       fri_joint_impedance.stiffness[ii] = 0;
+       fri_joint_impedance.damping[ii] = 0;
     }
     port_fri_joint_impedance.write(fri_joint_impedance);
-  */
+  
 
   //Initialize port variables
   for (size_t ii(0); ii < model->getNDOF(); ++ii) {
@@ -184,8 +184,8 @@ void wbcComponent::updateHook(){
 
   //Read and update state
   if (port_joint_state.read(joint_state) == NewData) {
-    //port_mass_matrix.read(mass_matrix);
-    //port_fri_joint_state.read(fri_joint_state);
+    port_mass_matrix.read(mass_matrix);
+    port_fri_joint_state.read(fri_joint_state);
 
     double t = joint_state.header.stamp.toSec();
     robot_state.header.stamp.fromSec ( t );

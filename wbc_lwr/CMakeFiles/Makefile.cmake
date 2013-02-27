@@ -82,6 +82,7 @@ SET(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/test-future.dir/DependInfo.cmake"
   "CMakeFiles/test-results.dir/DependInfo.cmake"
   "CMakeFiles/test-results-run.dir/DependInfo.cmake"
+  "CMakeFiles/testComponent.dir/DependInfo.cmake"
   "CMakeFiles/tests.dir/DependInfo.cmake"
   "CMakeFiles/uninstall.dir/DependInfo.cmake"
   "CMakeFiles/wbcComponent.dir/DependInfo.cmake"

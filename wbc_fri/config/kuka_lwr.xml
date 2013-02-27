@@ -23,6 +23,7 @@
       <com>0.0, 0.0, 0.0</com>
       <rotorInertia>0.0</rotorInertia>
       <gearRatio>0</gearRatio>
+      <constrained>0</constrained>
 
       <jointNode>
 	<jointName>right-shoulder-lateral</jointName>
@@ -38,6 +39,7 @@
 	<com>0.0, 0.0, 0.0</com>
 	<rotorInertia>0.0</rotorInertia>
 	<gearRatio>0</gearRatio>
+        <constrained>0</constrained>
 	
 	<jointNode>
 	  <jointName>right-shoulder-rolling</jointName>
@@ -53,6 +55,7 @@
 	  <com>0.0, 0.0, 0.0</com>
 	  <rotorInertia>0.0</rotorInertia>
 	  <gearRatio>0</gearRatio>
+	  <constrained>0</constrained>
 	  
 	  <jointNode>
 	    <jointName>right-elbow</jointName>
@@ -68,6 +71,7 @@
 	    <com>0.0, 0.0, 0.0</com>
 	    <rotorInertia>0.0</rotorInertia>
 	    <gearRatio>0</gearRatio>
+	    <constrained>0</constrained>
 	    
 	    <jointNode>
 	      <jointName>right-wrist-z</jointName>
@@ -83,6 +87,7 @@
 	      <com>0.0, 0.0, 0.0</com>
 	      <rotorInertia>0.0</rotorInertia>
 	      <gearRatio>0</gearRatio>
+	      <constrained>0</constrained>
 	      
 	      <jointNode>
 		<jointName>right-wrist-y</jointName>
@@ -98,6 +103,7 @@
 		<com>0.0, 0.0, 0.0</com>
 		<rotorInertia>0.0</rotorInertia>
 		<gearRatio>0</gearRatio>
+	        <constrained>0</constrained>
 
 		<jointNode>
 		  <jointName>right-wrist-x</jointName>
@@ -113,6 +119,7 @@
 		  <com>0.0, 0.0, 0.0</com>
 		  <rotorInertia>0.0</rotorInertia>
 		  <gearRatio>0</gearRatio>
+		  <constrained>0</constrained>
 		  
 		</jointNode>
 	      </jointNode>

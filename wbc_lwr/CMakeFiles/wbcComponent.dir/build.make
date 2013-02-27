@@ -72,20 +72,37 @@ CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.o: /opt/ros/fuerte/stacks/commo
 CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.o: /home/mimkuka/ros_workspace/whole_body_control/wbc_msgs/manifest.xml
 CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.o: /home/mimkuka/ros_workspace/whole_body_control/wbc_core/manifest.xml
 CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.o: /home/mimkuka/ros_workspace/whole_body_control/wbc_uta_opspace/manifest.xml
+CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.o: /opt/ros/fuerte/stacks/orocos_kinematics_dynamics/orocos_kdl/manifest.xml
+CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.o: /opt/ros/fuerte/stacks/bullet/manifest.xml
+CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.o: /opt/ros/fuerte/share/rosconsole/manifest.xml
+CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.o: /opt/ros/fuerte/stacks/geometry/angles/manifest.xml
+CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.o: /opt/ros/fuerte/share/rospy/manifest.xml
+CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.o: /opt/ros/fuerte/share/rostest/manifest.xml
+CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.o: /opt/ros/fuerte/share/roswtf/manifest.xml
+CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.o: /opt/ros/fuerte/share/message_filters/manifest.xml
+CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.o: /opt/ros/fuerte/stacks/geometry/tf/manifest.xml
+CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.o: /opt/ros/fuerte/stacks/orocos_kinematics_dynamics/python_orocos_kdl/manifest.xml
+CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.o: /opt/ros/fuerte/stacks/orocos_kinematics_dynamics/kdl/manifest.xml
+CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.o: /opt/ros/fuerte/stacks/geometry/tf_conversions/manifest.xml
+CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.o: /home/mimkuka/ros_workspace/lueven_fri/kuka_lwr_fri/manifest.xml
+CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.o: /home/mimkuka/ros_workspace/lueven_fri/lwr_fri/manifest.xml
 CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.o: /home/mimkuka/ros_workspace/motion_control/motion_control_msgs/msg_gen/generated
 CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.o: /home/mimkuka/ros_workspace/whole_body_control/wbc_msgs/msg_gen/generated
 CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.o: /home/mimkuka/ros_workspace/whole_body_control/wbc_msgs/srv_gen/generated
+CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.o: /opt/ros/fuerte/stacks/geometry/tf/msg_gen/generated
+CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.o: /opt/ros/fuerte/stacks/geometry/tf/srv_gen/generated
+CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.o: /home/mimkuka/ros_workspace/lueven_fri/lwr_fri/msg_gen/generated
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/mimkuka/ros_workspace/whole_body_control/wbc_lwr/CMakeFiles $(CMAKE_PROGRESS_1)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -DTIXML_USE_STL -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -DOROCOS_TARGET=gnulinux -o CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.o -c /home/mimkuka/ros_workspace/whole_body_control/wbc_lwr/src/wbcComponent.cpp
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -DTIXML_USE_STL -DBT_USE_DOUBLE_PRECISION -DBT_EULER_DEFAULT_ZYX -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -DOROCOS_TARGET=gnulinux -o CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.o -c /home/mimkuka/ros_workspace/whole_body_control/wbc_lwr/src/wbcComponent.cpp
 
 CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -DTIXML_USE_STL -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -DOROCOS_TARGET=gnulinux -E /home/mimkuka/ros_workspace/whole_body_control/wbc_lwr/src/wbcComponent.cpp > CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -DTIXML_USE_STL -DBT_USE_DOUBLE_PRECISION -DBT_EULER_DEFAULT_ZYX -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -DOROCOS_TARGET=gnulinux -E /home/mimkuka/ros_workspace/whole_body_control/wbc_lwr/src/wbcComponent.cpp > CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.i
 
 CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -DTIXML_USE_STL -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -DOROCOS_TARGET=gnulinux -S /home/mimkuka/ros_workspace/whole_body_control/wbc_lwr/src/wbcComponent.cpp -o CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -DTIXML_USE_STL -DBT_USE_DOUBLE_PRECISION -DBT_EULER_DEFAULT_ZYX -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -DOROCOS_TARGET=gnulinux -S /home/mimkuka/ros_workspace/whole_body_control/wbc_lwr/src/wbcComponent.cpp -o CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.s
 
 CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.o.requires:
 .PHONY : CMakeFiles/wbcComponent.dir/src/wbcComponent.cpp.o.requires
@@ -119,11 +136,18 @@ lib/orocos/gnulinux/libwbcComponent-gnulinux.so: /home/mimkuka/ros_workspace/mot
 lib/orocos/gnulinux/libwbcComponent-gnulinux.so: /home/mimkuka/ros_workspace/orocos_core/orocos_toolchain/install/lib/liborocos-rtt-gnulinux.so
 lib/orocos/gnulinux/libwbcComponent-gnulinux.so: /usr/lib/x86_64-linux-gnu/libpthread.so
 lib/orocos/gnulinux/libwbcComponent-gnulinux.so: /usr/lib/x86_64-linux-gnu/librt.so
+lib/orocos/gnulinux/libwbcComponent-gnulinux.so: /home/mimkuka/ros_workspace/lueven_fri/lwr_fri/lib/orocos/gnulinux/types/librtt-lwr_fri-typekit-gnulinux.so
+lib/orocos/gnulinux/libwbcComponent-gnulinux.so: /home/mimkuka/ros_workspace/lueven_fri/lwr_fri/lib/orocos/gnulinux/types/librtt-lwr_fri-ros-transport-gnulinux.so
+lib/orocos/gnulinux/libwbcComponent-gnulinux.so: /home/mimkuka/ros_workspace/orocos_core/orocos_toolchain/install/lib/liborocos-rtt-gnulinux.so
+lib/orocos/gnulinux/libwbcComponent-gnulinux.so: /usr/lib/x86_64-linux-gnu/libpthread.so
+lib/orocos/gnulinux/libwbcComponent-gnulinux.so: /usr/lib/x86_64-linux-gnu/librt.so
 lib/orocos/gnulinux/libwbcComponent-gnulinux.so: /home/mimkuka/ros_workspace/orocos_core/orocos_toolchain/install/lib/liborocos-rtt-gnulinux.so.2.6.0
 lib/orocos/gnulinux/libwbcComponent-gnulinux.so: /home/mimkuka/ros_workspace/orocos_core/rtt_common_msgs/rtt_geometry_msgs/lib/orocos/gnulinux/types/librtt-geometry_msgs-typekit-gnulinux.so
 lib/orocos/gnulinux/libwbcComponent-gnulinux.so: /home/mimkuka/ros_workspace/orocos_core/rtt_common_msgs/rtt_geometry_msgs/lib/orocos/gnulinux/types/librtt-geometry_msgs-ros-transport-gnulinux.so
 lib/orocos/gnulinux/libwbcComponent-gnulinux.so: /home/mimkuka/ros_workspace/motion_control/rtt_motion_control_msgs/lib/orocos/gnulinux/types/librtt-motion_control_msgs-typekit-gnulinux.so
 lib/orocos/gnulinux/libwbcComponent-gnulinux.so: /home/mimkuka/ros_workspace/motion_control/rtt_motion_control_msgs/lib/orocos/gnulinux/types/librtt-motion_control_msgs-ros-transport-gnulinux.so
+lib/orocos/gnulinux/libwbcComponent-gnulinux.so: /home/mimkuka/ros_workspace/lueven_fri/lwr_fri/lib/orocos/gnulinux/types/librtt-lwr_fri-typekit-gnulinux.so
+lib/orocos/gnulinux/libwbcComponent-gnulinux.so: /home/mimkuka/ros_workspace/lueven_fri/lwr_fri/lib/orocos/gnulinux/types/librtt-lwr_fri-ros-transport-gnulinux.so
 lib/orocos/gnulinux/libwbcComponent-gnulinux.so: /usr/lib/libboost_filesystem-mt.so
 lib/orocos/gnulinux/libwbcComponent-gnulinux.so: /usr/lib/libboost_system-mt.so
 lib/orocos/gnulinux/libwbcComponent-gnulinux.so: /usr/lib/libboost_serialization-mt.so

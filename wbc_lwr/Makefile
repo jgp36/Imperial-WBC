@@ -319,6 +319,19 @@ test-results-run/fast:
 .PHONY : test-results-run/fast
 
 #=============================================================================
+# Target rules for targets named testComponent
+
+# Build rule for target.
+testComponent: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 testComponent
+.PHONY : testComponent
+
+# fast build rule for target.
+testComponent/fast:
+	$(MAKE) -f CMakeFiles/testComponent.dir/build.make CMakeFiles/testComponent.dir/build
+.PHONY : testComponent/fast
+
+#=============================================================================
 # Target rules for targets named tests
 
 # Build rule for target.
@@ -356,6 +369,30 @@ wbcComponent: cmake_check_build_system
 wbcComponent/fast:
 	$(MAKE) -f CMakeFiles/wbcComponent.dir/build.make CMakeFiles/wbcComponent.dir/build
 .PHONY : wbcComponent/fast
+
+src/testComponent.o: src/testComponent.cpp.o
+.PHONY : src/testComponent.o
+
+# target to build an object file
+src/testComponent.cpp.o:
+	$(MAKE) -f CMakeFiles/testComponent.dir/build.make CMakeFiles/testComponent.dir/src/testComponent.cpp.o
+.PHONY : src/testComponent.cpp.o
+
+src/testComponent.i: src/testComponent.cpp.i
+.PHONY : src/testComponent.i
+
+# target to preprocess a source file
+src/testComponent.cpp.i:
+	$(MAKE) -f CMakeFiles/testComponent.dir/build.make CMakeFiles/testComponent.dir/src/testComponent.cpp.i
+.PHONY : src/testComponent.cpp.i
+
+src/testComponent.s: src/testComponent.cpp.s
+.PHONY : src/testComponent.s
+
+# target to generate assembly for a file
+src/testComponent.cpp.s:
+	$(MAKE) -f CMakeFiles/testComponent.dir/build.make CMakeFiles/testComponent.dir/src/testComponent.cpp.s
+.PHONY : src/testComponent.cpp.s
 
 src/wbcComponent.o: src/wbcComponent.cpp.o
 .PHONY : src/wbcComponent.o
@@ -407,9 +444,13 @@ help:
 	@echo "... test-future"
 	@echo "... test-results"
 	@echo "... test-results-run"
+	@echo "... testComponent"
 	@echo "... tests"
 	@echo "... uninstall"
 	@echo "... wbcComponent"
+	@echo "... src/testComponent.o"
+	@echo "... src/testComponent.i"
+	@echo "... src/testComponent.s"
 	@echo "... src/wbcComponent.o"
 	@echo "... src/wbcComponent.i"
 	@echo "... src/wbcComponent.s"

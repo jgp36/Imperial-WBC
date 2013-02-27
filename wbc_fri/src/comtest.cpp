@@ -47,7 +47,13 @@ int main(int argc, char ** argv)
   Vector command(Vector::Zero(7));
   A = Matrix::Zero(7,7);
   t = 0;
-  double kp = 2.0;
+  double kp = 8.0;
+  double const pi = 3.14159;
+
+
+  Vector pos_des(Vector::Zero(7));
+  pos_des[1] = (167.92-90.0)*pi/180;
+  pos_des[3] = 73.52*pi/180;
 
   //Initial message
   ros::Publisher torque_pub = node.advertise<JointEfforts>("/JointEffortCommand", 1);
@@ -60,7 +66,7 @@ int main(int argc, char ** argv)
   for (size_t ii(0); ii<7; ++ii) {
 	torque_msg.efforts.push_back(0.0);
 	jointimp_msg.stiffness[ii] = 0.0;
-	jointimp_msg.damping[ii] = 1.0;
+	jointimp_msg.damping[ii] = 0.0;
   }
   torque_pub.publish(torque_msg);
   jointimp_pub.publish(jointimp_msg);
@@ -69,7 +75,7 @@ int main(int argc, char ** argv)
   while (ros::ok()) {
 
     for (size_t ii(0); ii<7; ++ii) {
-      //torque_msg.efforts[ii] = -kp*state.position_[ii];
+      torque_msg.efforts[ii] = kp*(pos_des[ii] - state.position_[ii]);
     }
     jointimp_pub.publish(jointimp_msg);
     torque_pub.publish(torque_msg);
@@ -92,7 +98,7 @@ int main(int argc, char ** argv)
 	cout << "\n" << endl;
 	cout << "Torque desired: " << endl;
 	for (size_t ii(0); ii<7; ++ii) {
-		cout << -kp*state.position_[ii] << " ";
+	  cout << kp*(pos_des[ii] - state.position_[ii]) << " ";
 	}
 	cout << "\n" << endl;
     }

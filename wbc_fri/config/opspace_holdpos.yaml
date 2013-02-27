@@ -2,10 +2,10 @@
   - type: opspace::PureCartPosTask
     name: task
     end_effector: 6
-    kp: [  60.0, 60.0, 60.0 ]
-    kd: [  10.0, 10.0, 10.0 ]
-    control_point: [ 0, 0, 0 ]
-    goalpos: [ 0.37, 0.01, 0.87]
+    kp: [  100.0, 100.0, 100.0 ]
+    kd: [  15.0, 15.0, 15.0 ]
+    control_point: [ 0, 0, 0.03 ]
+    goalpos: [ -.37, 0.01, 0.95]
   - type: opspace::PureJPosTrjTask
     name: posture
     sigma_threshold: 0.0001

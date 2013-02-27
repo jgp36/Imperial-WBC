@@ -13,5 +13,5 @@ Name: wbc_lwr-gnulinux
 Description: wbc_lwr-gnulinux package for Orocos
 Requires: orocos-rtt-gnulinux 
 Version: 1.0
-Libs:  -L${orocos_libdir}  -lwbcComponent-gnulinux
+Libs:  -L${orocos_libdir}  -lwbcComponent-gnulinux -ltestComponent-gnulinux
 Cflags: -I${includedir} -I${prefix}/..
