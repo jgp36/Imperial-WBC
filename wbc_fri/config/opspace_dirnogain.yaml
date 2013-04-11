@@ -5,7 +5,7 @@
     kp: [ 100.0,   0.0, 100.0 ]
     kd: [  15.0,   0.0,  15.0 ]
     control_point: [ 0, 0, 0.03 ]
-    goalpos: [ -0.37, 0.01, 0.95]
+    goalpos: [ -0.37, -0.01, 0.77]
   - type: opspace::PureJPosTrjTask
     name: posture
     sigma_threshold: 0.0001

@@ -2,11 +2,15 @@ import("lwr_fri")
 import("wbc_lwr")
 
 loadComponent("lwr","lwr_fri::FRIComponent")
-loadComponent("wbc", "wbc_lwr::testComponent")
+loadComponent("wbc", "wbc_lwr::wbcComponent")
 
 setActivity("lwr",0, 99, ORO_SCHED_RT)
 setActivity("wbc", 0.05, 99, ORO_SCHED_RT)
 lwr.udp_port=49938
+wbc.robot = "config/kuka_lwr.xml"
+wbc.skill = "config/opspace_holdpos.yaml"
+wbc.camera = false
+wbc.verbose = true
 lwr.configure
 wbc.configure
 lwr.start

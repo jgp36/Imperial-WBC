@@ -1,0 +1,23 @@
+- tasks:
+  - type: opspace::PureCartPosTask
+    name: task
+    end_effector: 6
+    kp: [  75.0, 75.0, 75.0 ]
+    kd: [  10.0, 10.0, 10.0 ]
+    control_point: [ 0, 0, 0.03 ]
+    goalpos: [ -.37, 0.01, 0.95]
+  - type: opspace::TestYoshikawaOptTask
+    name: opt
+    end_effector: 6
+    control_point: [ 0, 0, 0.03 ]
+    kp: 50.0
+    kd: 10.0
+    wmax: 5.0
+
+- skills:
+  - type: opspace::TwoTaskSkill
+    name: threetask
+    slots:
+      task1: task
+      task2: opt
+#      task3: posture
