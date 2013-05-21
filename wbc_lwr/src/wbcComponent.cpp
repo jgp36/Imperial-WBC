@@ -16,7 +16,7 @@ using namespace uta_opspace;
 namespace wbc_lwr {
 
 wbcComponent::wbcComponent(std::string const& name) 
-  : TaskContext(name), init_(false), camera_(false), robot_file_(""), skill_file_(""), verbose(false), t_prev(0){
+  : TaskContext(name), init_(false), camera_(false), robot_file_(""), skill_file_(""), verbose(false), t_prev(0), A(jspace::Matrix::Zero(7,7)), gravity(Vector::Zero(7)), msrJntTrq(Vector::Zero(7)), estExtJntTrq(Vector::Zero(7)) {
 
   //Add ports
 
@@ -182,10 +182,28 @@ void wbcComponent::errorHook() {
 
 void wbcComponent::updateHook(){
 
+  port_fri_joint_impedance.write(fri_joint_impedance);
+
   //Read and update state
   if (port_joint_state.read(joint_state) == NewData) {
     port_mass_matrix.read(mass_matrix);
+    for (size_t ii(0); ii<7; ++ii) {
+      for (size_t jj(0); jj<7; ++jj) {
+	 A(ii,jj) = mass_matrix.mass[7*ii+jj];
+      }
+    }
+    controller->setAmatrix(A);
+    //Data collection
     port_fri_joint_state.read(fri_joint_state);
+    for (size_t ii(0); ii < 7; ++ii) {
+	gravity[ii] = fri_joint_state.gravity[ii];
+	msrJntTrq[ii] = fri_joint_state.msrJntTrq[ii];
+	estExtJntTrq[ii] = fri_joint_state.estExtJntTrq[ii];
+    }
+    controller->setgTrq(gravity);
+    controller->setMsrJntTrq(msrJntTrq);
+    controller->setEstExtJntTrq(estExtJntTrq);
+    
 
     double t = joint_state.header.stamp.toSec();
     robot_state.header.stamp.fromSec ( t );
@@ -219,15 +237,24 @@ void wbcComponent::updateHook(){
     for (size_t ii(0); ii < model->getNDOF(); ++ii) {
       joint_efforts.efforts[ii] = command[ii];
       robot_state.effort[ii] = command[ii];
+      robot_state.position[ii] = model->getState().position_[ii];
+      robot_state.velocity[ii] = model->getState().velocity_[ii];
     }
     port_joint_efforts.write(joint_efforts);
 
-    skill->dbg(temp_skill_state, "\n\n**************************************************", "");
-    controller->dbg(temp_skill_state, "--------------------------------------------------", "");
+    //skill->dbg(temp_skill_state, "\n\n**************************************************", "");
+    //controller->dbg(temp_skill_state, "--------------------------------------------------", "");
     
-    skill_state = temp_skill_state.str();
-    temp_skill_state.str("");
+    //skill_state = temp_skill_state.str();
+    //temp_skill_state.str("");
   }
+
+    	//skill->dbg(cout, "\n\n**************************************************", "");
+	//controller->dbg(cout, "--------------------------------------------------", "");
+	//cout << "--------------------------------------------------\n";
+	//jspace::pretty_print(model->getState().position_, cout, "jpos", "  ");
+	//jspace::pretty_print(controller->getCommand(), cout, "gamma", "  ");
+
 
     //Logger output
     //Write to state
@@ -236,6 +263,14 @@ void wbcComponent::updateHook(){
 }
 
 void wbcComponent::stopHook() {
+
+    //Command output
+    for (size_t ii(0); ii < model->getNDOF(); ++ii) {
+      joint_efforts.efforts[ii] = 0.0;
+      robot_state.effort[ii] = 0.0;
+    }
+    port_joint_efforts.write(joint_efforts);
+
 }
 
 void wbcComponent::cleanupHook() {

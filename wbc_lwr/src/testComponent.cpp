@@ -41,14 +41,14 @@ bool testComponent::configureHook(){
 
 
   //Setup Joint Impedance - always use pure joint impedance - could be setup as a parameter
-    for (size_t ii(0); ii < model->getNDOF(); ++ii) {
+    for (size_t ii(0); ii < 7; ++ii) {
        fri_joint_impedance.stiffness[ii] = 0;
        fri_joint_impedance.damping[ii] = 0;
     }
     //port_fri_joint_impedance.write(fri_joint_impedance);
 
   //Initialize port variables
-  for (size_t ii(0); ii < model->getNDOF(); ++ii) {
+  for (size_t ii(0); ii < 7; ++ii) {
     joint_efforts.efforts.push_back(0);
   }
 
@@ -83,7 +83,7 @@ void testComponent::updateHook(){
 
     double t = joint_state.header.stamp.toSec();
     
-    for (size_t ii(0); ii < model->getNDOF(); ++ii) {
+    for (size_t ii(0); ii < 7; ++ii) {
       state.position_[ii] = joint_state.position[ii];
       if (t_prev == 0) {
 	state.velocity_[ii] = (state.position_[ii]-pos_prev[ii])/(t-t_prev);

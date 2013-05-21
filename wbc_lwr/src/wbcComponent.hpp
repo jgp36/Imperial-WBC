@@ -44,6 +44,10 @@ namespace wbc_lwr {
     shared_ptr<ControllerNG> controller;
     shared_ptr<Skill> skill;
     jspace::State state;
+    jspace::Matrix A;
+    jspace::Vector gravity;
+    jspace::Vector msrJntTrq;
+    jspace::Vector estExtJntTrq;
 
     Vector pos_prev;
     double t_prev;

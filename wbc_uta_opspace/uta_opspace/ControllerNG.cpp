@@ -45,14 +45,14 @@ namespace uta_opspace {
       fallback_(false),
       a_set(false),
       g_set(false),
-      loglen_(-1),
+      /*loglen_(-1),
       logsubsample_(-1),
       logprefix_(""),
-      logcount_(-1)
-      /*loglen_(3000),
+      logcount_(-1)*/
+      loglen_(3000),
       logsubsample_(1),
-      logprefix_("Data_Test"),
-      logcount_(0)*/
+      logprefix_("Kuka_Data"),
+      logcount_(0)
   {
     declareParameter("loglen", &loglen_, PARAMETER_FLAG_NOLOG);
     declareParameter("logsubsample", &logsubsample_, PARAMETER_FLAG_NOLOG);
@@ -66,6 +66,7 @@ namespace uta_opspace {
     declareParameter("msrJntTrq", &msrJntTrq_);
     declareParameter("estExtJntTrq", &estExtJntTrq_);
     declareParameter("camData", &camData_);
+    declareParameter("A", &A_);
   }
   
   
@@ -182,8 +183,7 @@ namespace uta_opspace {
     fullJpos_ = model.getFullState().position_;
     fullJvel_ = model.getFullState().velocity_;
     camData_ = model.getState().camData_;
-    
-
+  
     Matrix ainv;
     if (!a_set) {
       if ( ! model.getInverseMassInertia(ainv)) {
@@ -193,8 +193,9 @@ namespace uta_opspace {
     else {
       ainv = A_.inverse();
     }
-    Vector grav;
-    if (!g_set) {
+    Vector grav(Vector::Zero(model.getNDOF()));
+    // XXX disabled for Kuka
+    /*if (!g_set) {
       if ( ! model.getGravity(grav)) {
 	return Status(false, "failed to retrieve gravity torques");
       }
@@ -203,7 +204,7 @@ namespace uta_opspace {
     }
     else {
       grav = g_;
-    }
+    }*/
     
     jspace::Constraint * constraint = model.getConstraint();
     
@@ -256,7 +257,7 @@ namespace uta_opspace {
     Matrix nstar(Matrix::Identity(model.getUnconstrainedNDOF(), model.getUnconstrainedNDOF()));
     int first_active_task_index(0); // because tasks can have empty Jacobian
     for (size_t ii(0); ii < tasks->size(); ++ii) {
-      
+
       Task const * task((*tasks)[ii]);
       Matrix const & jac(task->getJacobian());
       

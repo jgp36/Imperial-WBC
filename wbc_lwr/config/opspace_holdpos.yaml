@@ -23,8 +23,7 @@
 
 - skills:
   - type: opspace::TwoTaskSkill
-    name: threetask
+    name: twotask
     slots:
       task1: task
       task2: task2
-#      task3: posture

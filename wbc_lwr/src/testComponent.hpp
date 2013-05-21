@@ -37,12 +37,6 @@ namespace wbc_lwr {
     bool verbose;
     bool init_;
 
-    scoped_ptr<jspace::Model> model;
-    shared_ptr<Factory> factory;
-    shared_ptr<opspace::ReflectionRegistry> registry;
-    shared_ptr<ParamCallbacks> param_cbs;
-    shared_ptr<ControllerNG> controller;
-    shared_ptr<Skill> skill;
     jspace::State state;
 
     Vector pos_prev;

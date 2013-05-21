@@ -64,7 +64,8 @@ namespace jspace {
   Model()
     : ndof_(0),
       kgm_tree_(0),
-      cc_tree_(0)
+      cc_tree_(0),
+      constraint_(0)
   {
   }
   
