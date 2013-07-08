@@ -13,6 +13,9 @@ find_package(Eigen REQUIRED)
 include_directories(${EIGEN_INCLUDE_DIRS})
 add_definitions(${EIGEN_DEFINITIONS})
 
+set (EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+set (LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
+
 # The wbc_tinyxml includes can be quite problematic in case the
 # compiler first finds a system-installed or ROS-3rdparty TinyXML
 # header. This causes headaches especially when when some other
