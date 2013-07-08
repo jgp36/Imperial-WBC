@@ -7,7 +7,7 @@ lisp
 oct
 msg_gen
 srv_gen
-wbc__msgs/src
+wbc_msgs/src
 CMakeFiles
 CMakeCache.txt
 cmake_install.cmake
