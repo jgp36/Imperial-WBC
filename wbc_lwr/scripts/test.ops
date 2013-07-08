@@ -8,7 +8,7 @@ setActivity("lwr",0, 99, ORO_SCHED_RT)
 setActivity("wbc", 0.05, 99, ORO_SCHED_RT)
 lwr.udp_port=49938
 wbc.robot = "config/kuka_lwr.xml"
-wbc.skill = "config/datacollection.yaml"
+wbc.skill = "config/opspace_holdpos.yaml"
 wbc.camera = false
 wbc.verbose = true
 lwr.configure
