@@ -193,6 +193,7 @@ void wbcComponent::updateHook(){
       }
     }
     controller->setAmatrix(A);
+    model->setKukaAMatrix(A);
     //Data collection
     port_fri_joint_state.read(fri_joint_state);
     for (size_t ii(0); ii < 7; ++ii) {

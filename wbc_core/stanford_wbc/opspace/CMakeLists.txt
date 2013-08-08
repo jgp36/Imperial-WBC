@@ -7,6 +7,7 @@ include_directories (
   )
 
 add_library (opspace SHARED
+  src/mass_opt_matrices.cpp
   src/Parameter.cpp
   src/Task.cpp
   src/Factory.cpp

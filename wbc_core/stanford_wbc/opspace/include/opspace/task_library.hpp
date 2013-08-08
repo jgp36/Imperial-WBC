@@ -1031,6 +1031,30 @@ protected:
   Vector dJ_;
 };
 
+class TestMassOptTask
+  : public Task 
+	{
+	public:
+  explicit TestMassOptTask(std::string const & name);
+
+  virtual Status init(Model const & model);
+  virtual Status update(Model const & model);
+  virtual void dbg(std::ostream & os,
+		   std::string const & title,
+		   std::string const & prefix) const;
+  
+protected:
+  virtual taoDNode const * updateActual(Model const & model);
+  int end_effector_id_;
+  Vector control_point_;
+  mutable taoDNode const * end_effector_node_;
+  double kp_;
+  double kd_;
+  double wmax_;
+  Vector wdes_;
+  Vector dc_;
+};
+
 
 }
 

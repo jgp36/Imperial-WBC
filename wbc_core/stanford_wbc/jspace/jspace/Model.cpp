@@ -137,6 +137,8 @@ namespace jspace {
     kgm_tree_ = kgm_tree;
     cc_tree_ = cc_tree;
     ndof_ = kgm_tree->info.size();
+
+    kuka_mass_ = Matrix::Zero(ndof_,ndof_);
     
     return 0;
   }
@@ -744,5 +746,20 @@ namespace jspace {
     
     return true;
   }
+
+   bool Model::
+   getInverseMassInertiaKuka(Matrix & mass_inertia) const
+  {
+   mass_inertia.resize(ndof_,ndof_);
+   mass_inertia = kuka_mass_.inverse();  
+
+   return true;
+  }
+   bool Model::
+   setKukaAMatrix(Matrix kuka_mass) {
+   kuka_mass_ = kuka_mass;
+
+   return true;
+   }
 
 }

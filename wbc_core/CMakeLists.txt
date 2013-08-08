@@ -84,6 +84,7 @@ rosbuild_add_library (wbc_core
   stanford_wbc/jspace/jspace/test/sai_util.cpp
   stanford_wbc/jspace/jspace/tao_dump.cpp
 
+  stanford_wbc/opspace/src/mass_opt_matrices.cpp
   stanford_wbc/opspace/src/task_library.cpp
   stanford_wbc/opspace/src/Skill.cpp
   stanford_wbc/opspace/src/skill_library.cpp

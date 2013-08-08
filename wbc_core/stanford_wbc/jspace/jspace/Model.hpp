@@ -404,6 +404,13 @@ namespace jspace {
 	Coriolis-centrifugal tree. Can NULL if the user is not
 	interested in Coriolis-centrifugal effects. */
     tao_tree_info_s * _getCCTree() { return cc_tree_; }
+
+
+   /** Kuka A matrix for optimization
+
+   **/
+   bool getInverseMassInertiaKuka(Matrix & mass_inertia) const;
+   bool setKukaAMatrix(Matrix kuka_mass);
     
     
   private:
@@ -422,6 +429,8 @@ namespace jspace {
     std::vector<double> a_upper_triangular_;
     Matrix mass_inertia_;
     Matrix inv_mass_inertia_;
+
+    Matrix kuka_mass_;
     
     struct ancestry_entry_s {
       int id;

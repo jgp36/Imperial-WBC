@@ -26,6 +26,7 @@
 #include <opspace/task_library.hpp>
 #include <opspace/TypeIOTGCursor.hpp>
 #include <jspace/constraint_library.hpp>
+#include <opspace/mass_opt_matrices.hpp>
 
 #include <ros/ros.h>
 
@@ -4344,6 +4345,145 @@ TestYoshikawaOptTask::
 	dJ_[4] = 0.5*pow(JJt.determinant(),0.5)*Jtr5.trace();
 	dJ_[5] = 0.5*pow(JJt.determinant(),0.5)*Jtr6.trace();
 	dJ_[6] = 0.5*pow(JJt.determinant(),0.5)*Jtr7.trace();
+
+    }
+    return end_effector_node_;
+  }
+
+TestMassOptTask::
+  TestMassOptTask(std::string const & name)
+    : Task(name),
+	  end_effector_id_(-1),
+      control_point_(Vector::Zero(3)),
+      end_effector_node_(0),
+      kp_(0),
+      kd_(0)
+  {
+    declareParameter("end_effector",  &end_effector_id_ );
+    declareParameter("control_point", &control_point_);
+    declareParameter("kp", &kp_);
+    declareParameter("kd", &kd_);
+    declareParameter("wmax", &wmax_);
+  }
+
+  Status TestMassOptTask::
+  init(Model const & model) {
+	if (0 > end_effector_id_) {
+      return Status(false, "you did not (correctly) set end_effector_id");
+    }
+
+	jacobian_ = Matrix::Identity(model.getNDOF(), model.getNDOF());
+
+	if (0 == updateActual(model)) {
+      return Status(false, "updateActual() failed, did you specify a valid end_effector_id?");
+    }
+
+    Status ok;
+    return ok;
+  }
+
+
+  Status TestMassOptTask::
+  update(Model const & model) {
+    end_effector_node_ = updateActual(model);
+    if ( ! end_effector_node_) {
+      return Status(false, "invalid end_effector");
+    }
+
+    wdes_ = kp_*dc_/kd_;
+
+    double vd = (1<wmax_/wdes_.norm())?1:(wmax_/wdes_.norm());
+    command_ = -kd_ * ( model.getFullState().velocity_ - vd*wdes_);
+
+    Status ok;
+    return ok;
+  }
+
+  void TestMassOptTask::
+  dbg(std::ostream & os,std::string const & title,std::string const & prefix) const {
+    if ( ! title.empty()) {
+      os << title << "\n";
+    }
+    os << prefix << "Mass Optimiality Task: `" << instance_name_ << "'\n";
+
+    pretty_print(actual_, os, prefix + "  actual", prefix + "    ");
+    pretty_print(jacobian_, os, prefix + "  jacobian", prefix + "    ");
+    pretty_print(command_, os, prefix + "  command", prefix + "    ");
+  }
+
+  taoDNode const * TestMassOptTask::
+  updateActual(Model const & model) {
+    if ( ! end_effector_node_) {
+      end_effector_node_ = model.getNode(end_effector_id_);
+    }
+    if (end_effector_node_) {
+      jspace::Transform ee_transform;
+      model.computeGlobalFrame(end_effector_node_,
+			       control_point_[0],
+			       control_point_[1],
+			       control_point_[2],
+			       ee_transform);
+      
+	  actual_ = Vector::Zero(1);
+
+	Vector eepos = ee_transform.translation();
+
+      Matrix Jfull;
+      if ( ! model.computeJacobian(end_effector_node_, eepos(0), eepos(1), eepos(2), Jfull)) {
+		return 0;
+      }
+      Matrix J(Jfull.block(0,0,3,Jfull.cols()));
+
+      Matrix Ainv;
+
+      model.getInverseMassInertiaKuka(Ainv);
+
+	  Matrix Linv(J*Ainv*J.transpose());
+
+	  actual_[0] =Linv.determinant();
+
+	  dc_ = Vector::Zero(7);
+
+        Matrix d1Jv(mass_opt::d1Jv(control_point_, model.getState().position_));
+        Matrix d2Jv(mass_opt::d2Jv(control_point_, model.getState().position_));
+        Matrix d3Jv(mass_opt::d3Jv(control_point_, model.getState().position_));
+        Matrix d4Jv(mass_opt::d4Jv(control_point_, model.getState().position_));
+        Matrix d5Jv(mass_opt::d5Jv(control_point_, model.getState().position_));
+        Matrix d6Jv(mass_opt::d6Jv(control_point_, model.getState().position_));
+        Matrix d7Jv(mass_opt::d7Jv(control_point_, model.getState().position_));
+
+        Matrix d1A(mass_opt::d1A(model.getState().position_));
+        Matrix d2A(mass_opt::d2A(model.getState().position_));
+        Matrix d3A(mass_opt::d3A(model.getState().position_));
+        Matrix d4A(mass_opt::d4A(model.getState().position_));
+        Matrix d5A(mass_opt::d5A(model.getState().position_));
+        Matrix d6A(mass_opt::d6A(model.getState().position_));
+        Matrix d7A(mass_opt::d7A(model.getState().position_));
+
+        Matrix dLinv1(d1Jv*Ainv*J.transpose()-J*(Ainv*d1A*Ainv)*J.transpose()+J*Ainv*d1Jv.transpose());
+        Matrix dLinv2(d2Jv*Ainv*J.transpose()-J*(Ainv*d2A*Ainv)*J.transpose()+J*Ainv*d2Jv.transpose());
+        Matrix dLinv3(d3Jv*Ainv*J.transpose()-J*(Ainv*d3A*Ainv)*J.transpose()+J*Ainv*d3Jv.transpose());
+        Matrix dLinv4(d4Jv*Ainv*J.transpose()-J*(Ainv*d4A*Ainv)*J.transpose()+J*Ainv*d4Jv.transpose());
+        Matrix dLinv5(d5Jv*Ainv*J.transpose()-J*(Ainv*d5A*Ainv)*J.transpose()+J*Ainv*d5Jv.transpose());
+        Matrix dLinv6(d6Jv*Ainv*J.transpose()-J*(Ainv*d6A*Ainv)*J.transpose()+J*Ainv*d6Jv.transpose());
+        Matrix dLinv7(d7Jv*Ainv*J.transpose()-J*(Ainv*d7A*Ainv)*J.transpose()+J*Ainv*d7Jv.transpose());
+	
+	Matrix Ltr1(Linv.adjoint()*dLinv1);
+	Matrix Ltr2(Linv.adjoint()*dLinv2);
+	Matrix Ltr3(Linv.adjoint()*dLinv3);
+	Matrix Ltr4(Linv.adjoint()*dLinv4);
+	Matrix Ltr5(Linv.adjoint()*dLinv5);
+	Matrix Ltr6(Linv.adjoint()*dLinv6);
+	Matrix Ltr7(Linv.adjoint()*dLinv7);
+
+
+	dc_[0] = Ltr1.trace();
+	dc_[1] = Ltr2.trace();
+	dc_[2] = Ltr3.trace();
+	dc_[3] = Ltr4.trace();
+	dc_[4] = Ltr5.trace();
+	dc_[5] = Ltr6.trace();
+	dc_[6] = Ltr7.trace();
 
     }
     return end_effector_node_;
