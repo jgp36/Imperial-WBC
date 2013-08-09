@@ -71,6 +71,7 @@ namespace opspace {
     Factory::addTaskType<opspace::PlanarCartPosTrjTask>("opspace::PlanarCartPosTrjTask");
     Factory::addTaskType<opspace::TestChiuOptTask>("opspace::TestChiuOptTask");
     Factory::addTaskType<opspace::TestYoshikawaOptTask>("opspace::TestYoshikawaOptTask");
+    Factory::addTaskType<opspace::TestMassOptTask>("opspace::TestMassOptTask");
 
     Factory::addSkillType<opspace::GenericSkill>("opspace::GenericSkill");
     Factory::addSkillType<opspace::TaskPostureSkill>("opspace::TaskPostureSkill");

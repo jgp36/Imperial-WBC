@@ -192,6 +192,10 @@ void wbcComponent::updateHook(){
 	 A(ii,jj) = mass_matrix.mass[7*ii+jj];
       }
     }
+
+    //Hacks to try to make it function better
+    A(5,5) += 0.005;
+
     controller->setAmatrix(A);
     model->setKukaAMatrix(A);
     //Data collection
@@ -250,11 +254,11 @@ void wbcComponent::updateHook(){
     //temp_skill_state.str("");
   }
 
-    	//skill->dbg(cout, "\n\n**************************************************", "");
+    	skill->dbg(cout, "\n\n**************************************************", "");
 	//controller->dbg(cout, "--------------------------------------------------", "");
-	//cout << "--------------------------------------------------\n";
-	//jspace::pretty_print(model->getState().position_, cout, "jpos", "  ");
-	//jspace::pretty_print(controller->getCommand(), cout, "gamma", "  ");
+	cout << "--------------------------------------------------\n";
+	jspace::pretty_print(model->getState().position_, cout, "jpos", "  ");
+	jspace::pretty_print(controller->getCommand(), cout, "gamma", "  ");
 
 
     //Logger output
