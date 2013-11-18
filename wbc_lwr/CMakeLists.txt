@@ -53,6 +53,8 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 orocos_component(wbcComponent src/wbcComponent.hpp src/wbcComponent.cpp) # ...you may add multiple source files
 
 orocos_component(testComponent src/testComponent.hpp src/testComponent.cpp)
+
+orocos_component(virtualCamComponent src/virtualCamComponent.hpp src/virtualCamComponent.cpp)
 #
 # You may add multiple orocos_component statements.
 
@@ -61,7 +63,7 @@ orocos_component(testComponent src/testComponent.hpp src/testComponent.cpp)
 #
 # Installs in the include/orocos/wbc_lwr/ directory
 #
-orocos_install_headers(src/wbcComponent.hpp src/testComponent.hpp) # ...you may add multiple header files
+orocos_install_headers(src/wbcComponent.hpp src/testComponent.hpp src/virtualCamComponent.hpp) # ...you may add multiple header files
 #
 # You may add multiple orocos_install_headers statements.#
 
