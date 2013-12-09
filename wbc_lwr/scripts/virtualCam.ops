@@ -1,0 +1,30 @@
+import("lwr_fri")
+import("wbc_lwr")
+
+loadComponent("lwr","lwr_fri::FRIComponent")
+loadComponent("wbc", "wbc_lwr::virtualCamComponent")
+
+setActivity("lwr",0, 99, ORO_SCHED_RT)
+setActivity("wbc", 0.005, 99, ORO_SCHED_RT)
+lwr.udp_port=49938
+wbc.robot = "config/kuka_lwr.xml"
+wbc.skill = "config/attach_virtual.yaml"
+wbc.camera = true
+wbc.period = 10.0
+wbc.verbose = true
+lwr.configure
+wbc.configure
+lwr.start
+wbc.start
+
+var ConnPolicy cp
+cp.type = DATA
+cp.lock_policy = LOCK_FREE
+
+connect("wbc.JointState","lwr.JointState",cp)
+connect("wbc.JointEfforts","lwr.JointEffortCommand",cp)
+connect("wbc.FriJointImpedance","lwr.FriJointImpedance",cp)
+connect("wbc.MassMatrix","lwr.MassMatrix",cp)
+connect("wbc.FriJointState","lwr.FriJointState",cp)
+stream("wbc.vis_data",ros.topic("/vis_data"))
+stream("wbc.RobotState",ros.topic("/robot_state"))

@@ -18,6 +18,7 @@
 #include <geometry_msgs/typekit/Types.hpp>
 #include <motion_control_msgs/typekit/Types.hpp>
 #include <rtt/rt_string.hpp>
+#include <std_msgs/typekit/Types.hpp>
 
 using namespace opspace;
 using namespace wbc_core_opspace;
@@ -50,8 +51,14 @@ namespace wbc_lwr {
     jspace::Vector estExtJntTrq;
 
     Vector pos_prev;
-    double t_prev;
     Vector command;
+    
+    //Camera data and ports
+    float period_;
+    Vector position_buffer[50];
+    
+    OutputPort<std_msgs::Float32MultiArray> port_vis_data;
+    std_msgs::Float32MultiArray vis_data;
 
     //Ports and messages
     InputPort<sensor_msgs::JointState> port_joint_state;
@@ -69,6 +76,12 @@ namespace wbc_lwr {
     OutputPort<rt_string> port_skill_state;
     rt_string skill_state;
     rt_ostringstream temp_skill_state;
+    
+    float t_render;
+    os::TimeService::ticks t_start;
+    os::TimeService::Seconds t_last_out;
+    os::TimeService::Seconds t;
+    os::TimeService::Seconds t_prev;
 
   public:
     virtualCamComponent(std::string const& name);
@@ -78,6 +91,7 @@ namespace wbc_lwr {
     void updateHook();
     void stopHook();
     void cleanupHook();
+    void FOAW_best_fit(Vector Yk, Vector *y, size_t len, int n_of_jnt, double d, double T, Vector *y_out);
   };
 
 }

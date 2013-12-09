@@ -2,11 +2,11 @@
   - type: opspace::TestNormalizedImplicitSurfaceTask
     name: surface
     end_effector: 6
-    kp: [  15.0 ]
+    kp: [  25.0 ]
     kd: [  40.0 ]
     control_point: [ 0.0, 0.0, 0.2 ]
     R: 0.2
-    T: 4.5
+    T: 1.5
   - type: opspace::TestPureSelectCartPosTask
     name: eesurf
     end_effector: 6
@@ -34,7 +34,7 @@
   - type: uta_opspace::AttachSurface
     name: attach
     surflimitlow: 1.0
-    surflimithigh: 1.25
+    surflimithigh: 1.1
     slots:
       surface: surface
       eesurf: eesurf

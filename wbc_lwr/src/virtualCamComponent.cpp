@@ -16,7 +16,7 @@ using namespace uta_opspace;
 namespace wbc_lwr {
 
 virtualCamComponent::virtualCamComponent(std::string const& name) 
-  : TaskContext(name), init_(false), camera_(false), robot_file_(""), skill_file_(""), verbose(false), t_prev(0), A(jspace::Matrix::Zero(7,7)), gravity(Vector::Zero(7)), msrJntTrq(Vector::Zero(7)), estExtJntTrq(Vector::Zero(7)) {
+  : TaskContext(name), init_(false), camera_(false), robot_file_(""), skill_file_(""), verbose(false), t_prev(0), A(jspace::Matrix::Zero(7,7)), gravity(Vector::Zero(7)), msrJntTrq(Vector::Zero(7)), estExtJntTrq(Vector::Zero(7)), t_last_out(0), t_render(0.05) {
 
   //Add ports
 
@@ -37,12 +37,17 @@ virtualCamComponent::virtualCamComponent(std::string const& name)
   //Data Logging Output
   this->addPort("RobotState", port_robot_state);
   this->addPort("SkillState", port_skill_state);
+  this->addPort("vis_data", port_vis_data);
 
   //Set up parameters
   this->addProperty("robot", robot_file_);
   this->addProperty("skill", skill_file_);
   this->addProperty("camera", camera_);
   this->addProperty("verbose", verbose);
+   
+   
+  //Camera properties
+  this->addProperty("period", period_);
 
   //Add custom skill additions
   Factory::addSkillType<uta_opspace::RigidTf>("uta_opspace::RigidTf");
@@ -51,6 +56,10 @@ virtualCamComponent::virtualCamComponent(std::string const& name)
   Factory::addSkillType<uta_opspace::AttachSurface>("uta_opspace::AttachSurface");
   Factory::addSkillType<uta_opspace::KnownAttachSurface>("uta_opspace::KnownAttachSurface");
   Factory::addSkillType<uta_opspace::JointMultiPos>("uta_opspace::JointMultiPos");
+  
+  for (size_t ii(0); ii < 50; ++ii) {
+    position_buffer[ii] = Vector::Zero(7);
+  }
 
 }
 
@@ -102,6 +111,8 @@ bool virtualCamComponent::configureHook(){
 
   //Initialization
   state.init(model->getNDOF(), model->getNDOF(), 6);
+  state.camData_ = Matrix::Zero(10,3);
+  vis_data.data.resize(5+10*3);
   command = Vector::Zero(model->getNDOF());
   pos_prev = Vector::Zero(model->getNDOF());
 
@@ -173,6 +184,8 @@ bool virtualCamComponent::startHook(){
     //this->error(); //This isn't running errorHook for some reason...
     errx(EXIT_FAILURE,"Uninitialized: Run configure first!");
   }
+  
+    t_start = RTT::os::TimeService::Instance()->getTicks();
   return true;
 }
 
@@ -181,6 +194,68 @@ void virtualCamComponent::errorHook() {
 }
 
 void virtualCamComponent::updateHook(){
+
+    
+    t = RTT::os::TimeService::Instance()->getSeconds(t_start);
+
+    Vector c = Vector::Zero(3);
+    c(0) = -0.6;
+    c(1) =  0.0;
+    c(2) =  0.1;
+    float R(0.1+0.03*cos(2*M_PI*t/period_));
+
+    for (size_t ii(0); ii < 5; ++ii) {
+      state.camData_(ii,0) = c(0);
+      state.camData_(ii,1) = c(1) + R*cos(ii*M_PI/4);
+      state.camData_(ii,2) = c(2) + R*sin(ii*M_PI/4);
+    }
+    
+    for (size_t ii(0); ii < 5; ++ii) {
+      state.camData_(ii+5,0) = c(0)+0.05;
+      state.camData_(ii+5,1) = c(1) + R*cos(ii*M_PI/4);
+      state.camData_(ii+5,2) = c(2) + R*sin(ii*M_PI/4);
+    }
+
+/*    //Virtual camera update
+    state.camData_(0,0) = -0.6;
+    state.camData_(0,1) = 0.0;
+    state.camData_(0,2) = 0.2;
+        
+    state.camData_(1,0) = -0.6;
+    state.camData_(1,1) = 0.05;
+    state.camData_(1,2) = 0.15;
+    
+    state.camData_(2,0) = -0.6;
+    state.camData_(2,1) = -0.05;
+    state.camData_(2,2) = 0.15;
+    
+    state.camData_(3,0) = -0.6;
+    state.camData_(3,1) = 0.1;
+    state.camData_(3,2) = 0.1;
+    
+    state.camData_(4,0) = -0.6;
+    state.camData_(4,1) = -0.1;
+    state.camData_(4,2) = 0.1;
+    
+    state.camData_(5,0) = -0.55;
+    state.camData_(5,1) = 0.0;
+    state.camData_(5,2) = 0.2;
+    
+    state.camData_(6,0) = -0.55;
+    state.camData_(6,1) = 0.05;
+    state.camData_(6,2) = 0.15;
+   
+    state.camData_(7,0) = -0.55;
+    state.camData_(7,1) = -0.05;
+    state.camData_(7,2) = 0.15;
+    
+    state.camData_(8,0) = -0.55;
+    state.camData_(8,1) = 0.1;
+    state.camData_(8,2) = 0.1;
+    
+    state.camData_(9,0) = -0.55;
+    state.camData_(9,1) = -0.1;
+    state.camData_(9,2) = 0.12;*/
 
   port_fri_joint_impedance.write(fri_joint_impedance);
 
@@ -209,31 +284,29 @@ void virtualCamComponent::updateHook(){
     controller->setMsrJntTrq(msrJntTrq);
     controller->setEstExtJntTrq(estExtJntTrq);
     
-
-    double t = joint_state.header.stamp.toSec();
     robot_state.header.stamp.fromSec ( t );
     
     for (size_t ii(0); ii < model->getNDOF(); ++ii) {
       state.position_[ii] = joint_state.position[ii];
       robot_state.position[ii] = joint_state.position[ii];
-      if (t_prev == 0) {
+   /* if (t_prev == 0) {
 	state.velocity_[ii] = (state.position_[ii]-pos_prev[ii])/(t-t_prev);
 	robot_state.velocity[ii] = state.velocity_[ii];
       }
       else {
 	state.velocity_[ii] = 0;
 	robot_state.velocity[ii] = 0;
-      }
+      }*/
     }
+    
+    FOAW_best_fit(state.position_, position_buffer, 10, 7, 0.5, 0.005, &state.velocity_);
     
     pos_prev = state.position_;
     t_prev = t;
-
-
-    //Virtual camera update
-    //state.camData_ = Matrx::Zero(numPoints,3);
-    //state.camData_(ii,jj);
     
+    for (size_t ii(0); ii < model->getNDOF(); ++ii) {
+      robot_state.velocity[ii] = state.velocity_[ii];
+    }
     
     //Update model
     model->update(state);
@@ -248,28 +321,46 @@ void virtualCamComponent::updateHook(){
       joint_efforts.efforts[ii] = command[ii];
       robot_state.effort[ii] = command[ii];
       robot_state.position[ii] = model->getState().position_[ii];
-      robot_state.velocity[ii] = model->getState().velocity_[ii];
+      robot_state.velocity[ii] = model->getState().velocity_[ii]; 
     }
     port_joint_efforts.write(joint_efforts);
-
-    //skill->dbg(temp_skill_state, "\n\n**************************************************", "");
-    //controller->dbg(temp_skill_state, "--------------------------------------------------", "");
     
-    //skill_state = temp_skill_state.str();
-    //temp_skill_state.str("");
-  }
+    if (t - t_last_out > t_render)   {
+    //vis_data R, T, ee_pos, camdata
+      vis_data.data[0] = 0.2;
+      vis_data.data[1] = 1.5; //XXX Hardcoded garbage
+ 
+    
+      jspace::Transform ee_transform;
+      model->computeGlobalFrame(model->getNode(6), 0.0, 0.0, 0.2,
+			       ee_transform);
+      
+      vis_data.data[2] = ee_transform(0,3);
+      vis_data.data[3] = ee_transform(1,3);
+      vis_data.data[4] = ee_transform(2,3);  
+    
+      for (size_t ii(0); ii < 10; ++ii) {
+         for (size_t jj(0); jj < 3; ++jj) {
+           vis_data.data[5 + 3*ii+jj] = state.camData_(ii,jj);
+         }
+      }   
+      port_vis_data.write(vis_data);
+      t_last_out = t;
+    }
 
+  }
+/*
     	skill->dbg(cout, "\n\n**************************************************", "");
 	//controller->dbg(cout, "--------------------------------------------------", "");
 	cout << "--------------------------------------------------\n";
 	jspace::pretty_print(model->getState().position_, cout, "jpos", "  ");
 	jspace::pretty_print(controller->getCommand(), cout, "gamma", "  ");
-
+*/
 
     //Logger output
-    //Write to state
     port_robot_state.write(robot_state);
-    port_skill_state.write(skill_state);
+    //port_skill_state.write(skill_state);
+    
 }
 
 void virtualCamComponent::stopHook() {
@@ -285,6 +376,71 @@ void virtualCamComponent::stopHook() {
 
 void virtualCamComponent::cleanupHook() {
   skill.reset();
+}
+
+void virtualCamComponent::FOAW_best_fit(Vector Yk, Vector *y, size_t len, int n_of_jnt, double d, double T, Vector *y_out)
+
+{
+  int j =0;
+  for (j=0; j<n_of_jnt; j++){
+    
+	int exit = 0;
+	int n = 0;
+	int i = 2;
+	int m;
+	double sum1;
+	double sum2;
+//	bool not_done;
+//	bool not_done2;
+	double a;
+	double b;
+	double Yl;
+	int k = len-1;
+
+  
+  //new version************************************************************************
+ 
+      for ( i=1; i< k+1 ; i++){
+	    y[i-1](j) = y[i](j);  
+	}
+	
+      y[k](j) = Yk(j); //*q?
+	
+      do{
+	   n = n + 1;
+	   a = ( k*y[k-n](j) + (n-k)*(y[k](j)) )/n;
+	   sum1=0;
+	    sum2=0;
+	for (m =0; m <= n; m++){
+	   	sum1 = sum1 + y[k-m](j);
+	   	sum2 = sum2 + m * y[k-m](j);
+	   }
+	   
+	   b = ((n*sum1 - 2 * sum2)/((n+1)*(n+2)));
+	   b = 6*b/(n*T);
+
+//  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	   i = 0;
+	   do{
+		i = i + 1;
+		Yl = a + (b*(k-i)*T);
+	   } while((fabs((double)(y[k-i](j))-Yl)) <= d && i<n);
+	    
+	   if (i != n || n == k)
+		exit = 1;
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      } while(exit == 0);
+	  
+//n=n-1;
+    if(n<=2)
+	n=2;
+
+
+    if (n == k) 
+	(*y_out)(j) = ( y[k](j) - y[k-n+1](j) )/((n-1)*T); 
+    else
+	(*y_out)(j) = ( y[k](j) - y[k-n](j) )/(n*T); 
+  }///////////////////////////////////////////////////////
 }
 
 /*
